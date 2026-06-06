@@ -1,0 +1,38 @@
+name: must-update-content
+on:
+  workflow_call:
+    inputs:
+      prompt:
+        type: string
+        required: true
+      model:
+        type: string
+        default: claude-haiku-4-5-20251001
+    outputs:
+      response:
+        value: ${{ jobs.run.outputs.response }}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    outputs:
+      response: ${{ steps.call.outputs.response }}
+    steps:
+      - id: call
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          BODY=$(jq -n \
+            --arg model "${{ inputs.model }}" \
+            --arg prompt "${{ inputs.prompt }}" \
+            '{model: $model, max_tokens: 1024, messages: [{role: "user", content: $prompt}]}')
+          RESPONSE=$(curl -sf https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d "$BODY" | jq -r '.content[0].text')
+          if [ -z "$RESPONSE" ] || [ "$RESPONSE" = "null" ]; then
+            echo "❌ Empty or null response from Claude" && exit 1
+          fi
+          echo "response<<EOF" >> $GITHUB_OUTPUT
+          echo "$RESPONSE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
