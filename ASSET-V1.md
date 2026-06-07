@@ -10,6 +10,25 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toiflow 2026-06-07 → would/ could/ folder convention applied across all ts-* repos
+
+**Convention finalised:**
+| Folder | Contains | Purpose |
+|---|---|---|
+| `would/` | `.csv`, `.log` | Raw data outputs |
+| `could/` | `.md` | Processed content |
+
+**Repos updated (could/ rename + csv moved to would/):**
+| Repo | Changes |
+|---|---|
+| `ts-file` | `would/` → `could/` (md), csv → `would/` |
+| `ts-inbox` | `would/` → `could/` (md), csv → `would/` |
+| `ts-event` | `would/` → `could/` (md), csv → `would/` |
+| `ts-crypto` | `would/` → `could/` (md), csv → `would/` |
+| `ts-anz` | `would/` → `could/` (md), csv → `would/` |
+| `ts-back` | already had `could/`, no csv |
+
+**Files updated per repo:** `would-update-csv.js` path `could/-log-asset-v1.csv` → `would/-log-asset-v1.csv`
 ## ASSET:toifood 2026-06-07 17:00 → skill architecture — lives in -toifood, executes in ts-back
 
 The `would-update.md` skill is stored in `-toifood` (org-level, reusable) but executes inside `ts-back`'s GitHub Actions workspace (`$GITHUB_WORKSPACE`). The workflow copies the skill to the Mac Mini runner before invocation.
