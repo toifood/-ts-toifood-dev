@@ -10,6 +10,26 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-08 → file organisation confirmed — each pipeline repo self-contained
+
+```
+-toifood/                              ← org config layer
+├── .claude/commands/would-update.md       ← shared skill (any ts-* repo)
+├── ISSUE-V1.md / ASSET-V1.md             ← org-level decisions
+
+ts-back/                               ← pipeline for ts-toifood-back
+├── could/                                 ← analysis output (7 categories × ISSUE/ASSET)
+├── would/                                 ← CSV logs only
+├── ISSUE-V1.md / ASSET-V1.md             ← pipeline operational docs
+└── would-*.js                             ← pipeline scripts
+
+ts-toifood-back/                       ← prod code (read-only by pipeline)
+└── -MUST/                                 ← prompts per category
+```
+
+**Naming conventions:** `UPPERCASE-ISSUE-V1.md` / `UPPERCASE-ASSET-V1.md` in `could/`. 7 categories: `ANALYSIS`, `BUG`, `INSTRUCTION`, `MIGRATE`, `PRICE`, `RECOVERY`, `USAGE`.
+
+**When ts-front / ts-web are added:** mirror ts-back exactly — own `could/`, `would/`, `ISSUE-V1.md`, `ASSET-V1.md`, `would-*.js`. Skill already supports `/would-update ts-front` with no changes needed.
 ## ASSET:toiflow 2026-06-07 → would/ could/ folder convention applied across all ts-* repos
 
 **Convention finalised:**

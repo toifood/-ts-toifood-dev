@@ -10,6 +10,9 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 ## ISSUE:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:toifood 2026-06-08 → summary index deferred — useful once ts-front and ts-web are live
+
+A `-toifood/README.md` summary index (linking to each pipeline repo's `could/` analysis, last run timestamp, category list) was considered. Decision: defer until ts-front and ts-web are live and the org is shared with other team members. No value adding it for a single pipeline repo. When added: `would-update` skill writes the last run timestamp + GitHub links to `could/` per category as a final step.
 ## ISSUE:toifood 2026-06-07 16:00 → skill was reading wrong branch — zipball/latest unresolved
 
 `zipball/latest` in the skill was an ambiguous ref. GitHub treats it as a literal branch/tag name "latest" — since no such ref exists on `ts-toifood-back`, behavior was undefined (likely falling back to default branch `main`). `main` has no `-MUST/` directory, so the 5 standard category prompts were not being read.
