@@ -5,23 +5,23 @@ Analyse the source codebase and update all 10 category docs in the target repo.
 
 ## Derived values
 - Source repo: `jayreck996/ts-toifood-{suffix}` where suffix = strip `ts-` from `$ARGUMENTS` (e.g. `ts-back` → `back` → `ts-toifood-back`)
-- Target path: `C:\Users\tnako\Documents\GitHub\$ARGUMENTS\`
+- Target path: `$GITHUB_WORKSPACE` (set by GitHub Actions on the self-hosted runner)
 - Categories: `migrate`, `price`, `recovery`, `usage`, `instruction`
 
 ## Steps
 
 ### 1. Download and extract source repo
 
-Run in PowerShell:
-```powershell
-$zipPath = "$env:TEMP\toifood-source.zip"
-$extractPath = "$env:TEMP\toifood-source"
-$suffix = "$ARGUMENTS" -replace "^ts-", ""
-Remove-Item $extractPath -Recurse -Force -ErrorAction SilentlyContinue
-gh api "repos/jayreck996/ts-toifood-$suffix/zipball/latest" -o $zipPath
-Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-$root = (Get-ChildItem $extractPath | Select-Object -First 1).FullName
-Write-Output $root
+Run in bash:
+```bash
+suffix="${ARGUMENTS#ts-}"
+zipPath="/tmp/toifood-source.zip"
+extractPath="/tmp/toifood-source"
+rm -rf "$extractPath"
+gh api "repos/jayreck996/ts-toifood-${suffix}/zipball/latest" > "$zipPath"
+unzip -q "$zipPath" -d "$extractPath"
+root=$(find "$extractPath" -mindepth 1 -maxdepth 1 -type d | head -1)
+echo "$root"
 ```
 
 Note the `$root` path printed — all source file reads use this as the base.
@@ -32,7 +32,7 @@ Read these files from `$root`:
 - `README.md`
 - `package.json`
 - `prisma/schema.prisma` (skip if not present)
-- List contents of `src/` directory tree (Glob `src/**/*` from `$root`)
+- List contents of `src/` directory tree (glob `src/**/*` from `$root`)
 
 Hold this codebase context in mind for all 10 analyses.
 
@@ -49,7 +49,7 @@ For each category in `migrate`, `price`, `recovery`, `usage`, `instruction`:
    
    {analysis content}
    ```
-4. Prepend the entry into `C:\Users\tnako\Documents\GitHub\$ARGUMENTS\{category}-ISSUE.md` directly below the `####### <!-- ANCHOR MARKER` line — never edit existing entries below it
+4. Prepend the entry into `$GITHUB_WORKSPACE/{category}-ISSUE.md` directly below the `####### <!-- ANCHOR MARKER` line — never edit existing entries below it
 
 #### 3b. ASSET analysis
 1. Read `$root/-MUST/{category}-ASSET.md` — this is your analysis instruction/prompt
@@ -60,18 +60,21 @@ For each category in `migrate`, `price`, `recovery`, `usage`, `instruction`:
    
    {analysis content}
    ```
-4. Prepend the entry into `C:\Users\tnako\Documents\GitHub\$ARGUMENTS\{category}-ASSET.md` directly below the `####### <!-- ANCHOR MARKER` line — never edit existing entries below it
+4. Prepend the entry into `$GITHUB_WORKSPACE/{category}-ASSET.md` directly below the `####### <!-- ANCHOR MARKER` line — never edit existing entries below it
 
 ### 4. Commit and push
 
-Run in PowerShell from `C:\Users\tnako\Documents\GitHub\$ARGUMENTS`:
-```powershell
+Run in bash from `$GITHUB_WORKSPACE`:
+```bash
+cd "$GITHUB_WORKSPACE"
+git config user.name "would-update"
+git config user.email "admin@toigroup.co.nz"
 git add migrate-ISSUE.md migrate-ASSET.md price-ISSUE.md price-ASSET.md recovery-ISSUE.md recovery-ASSET.md usage-ISSUE.md usage-ASSET.md instruction-ISSUE.md instruction-ASSET.md
-git commit -m "would-update: $((Get-Date -Format 'yyyy-MM-dd HH:mm')) codebase analysis"
+git commit -m "would-update: $(date '+%Y-%m-%d %H:%M') codebase analysis"
 git push
 ```
 
 ### 5. Clean up
-```powershell
-Remove-Item "$env:TEMP\toifood-source.zip", "$env:TEMP\toifood-source" -Recurse -Force -ErrorAction SilentlyContinue
+```bash
+rm -rf /tmp/toifood-source.zip /tmp/toifood-source
 ```

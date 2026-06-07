@@ -10,6 +10,41 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-07 13:09 → pipeline architecture finalised — Mac Mini self-hosted runner under jayreck
+
+**Flow:**
+```
+GitHub Actions schedule (daily 06:00 NZST = 18:00 UTC)
+  → would-update.yml (ts-back) — runs-on: [self-hosted, mac-mini]
+    → checkout ts-back (TOIFOOD_CROSS_REPO_TOKEN)
+    → checkout toifood/-toifood → copy would-update.md → ~/.claude/commands/
+    → claude --dangerously-skip-permissions --print "/would-update ts-back"
+        → gh api zipball ts-toifood-back@latest → /tmp/
+        → read -MUST/ prompts + codebase context (README, package.json, prisma, src/)
+        → generate 10 analyses (migrate/price/recovery/usage/instruction × ISSUE/ASSET)
+        → prepend entries to category docs in $GITHUB_WORKSPACE
+        → git commit + push
+        → rm -rf /tmp/toifood-source*
+```
+
+**What already exists under jayreck:**
+| Component | Status |
+|---|---|
+| Claude Code installed | ✅ (`npm install -g @anthropic-ai/claude-code`) |
+| Claude Pro OAuth (`~/.claude/`) | ✅ authenticated |
+| PM2 running | ✅ manages `cloudflare-tunnel` + `toigroup-tunnel` |
+| PM2 startup on boot | ✅ (tunnels survive Friday 3am reboot) |
+| Node.js, `gh` CLI, `git` | ✅ |
+| `TOIFOOD_CROSS_REPO_TOKEN` org secret | ✅ set |
+
+**What still needs to be done:**
+| Step | Action |
+|---|---|
+| 1 | `toifood` org → Settings → Actions → Runners → New runner → macOS ARM64 → run `./config.sh --name mac-mini --labels mac-mini` |
+| 2 | `pm2 start ~/actions-runner/run.sh --name toifood-runner && pm2 save` |
+
+**No new secrets needed.** Skill auto-copies from `-toifood` on every run — stays in sync with repo.
+
 ## ASSET:toifood 2026-06-07 → Claude Pro auth model confirmed — why self-hosted runner is the only headless path
 
 | Scenario | Auth path | Works headlessly |

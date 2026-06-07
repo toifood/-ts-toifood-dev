@@ -10,6 +10,16 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 ## ISSUE:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:toifood 2026-06-07 13:09 → self-hosted runner runs under jayreck account, not jayagent
+
+Decision: use `jayreck` account on Mac Mini for the GitHub Actions self-hosted runner, not `jayagent`.
+
+**Why `jayreck`:** Claude Code is already installed and Claude Pro OAuth is already authenticated under `jayreck` (`~/.claude/` exists and is valid). PM2 is already running under this account managing both Cloudflare tunnels (`cloudflare-tunnel`, `toigroup-tunnel`). Adding the runner to PM2 follows the same pattern — no new account setup, no new auth.
+
+**Why not `jayagent`:** `jayagent` would require a separate Claude Code install + fresh OAuth browser login. No benefit over `jayreck` which is already fully configured.
+
+**Pending:** Runner registration only — `toifood` org → Settings → Actions → Runners → New → macOS ARM64 → `./config.sh` → `pm2 start run.sh --name toifood-runner` → `pm2 save`.
+
 ## ISSUE:toifood 2026-06-07 → GitHub Actions hosted runner cannot use Claude Pro — OAuth auth is interactive-only
 
 Claude Code CLI authenticates via Claude Pro OAuth (browser login → token saved to `~/.claude/`). GitHub Actions hosted runners (`ubuntu-latest`) are ephemeral VMs — blank slate on every run, no `~/.claude/`, no browser available to complete the OAuth flow. `claude` fails immediately with "not authenticated".
