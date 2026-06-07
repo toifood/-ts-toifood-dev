@@ -4,7 +4,7 @@ Analyse the source codebase and update all 10 category docs in the target repo.
 `$ARGUMENTS` is the target repo name, e.g. `ts-back`, `ts-front`, `ts-web`.
 
 ## Derived values
-- Source repo: `jayreck996/ts-toifood-{suffix}` where suffix = strip `ts-` from `$ARGUMENTS` (e.g. `ts-back` → `back` → `ts-toifood-back`)
+- Source repo: `toifood-dev/ts-toifood-{suffix}` where suffix = strip `ts-` from `$ARGUMENTS` (e.g. `ts-back` → `back` → `ts-toifood-back`)
 - Target path: `$GITHUB_WORKSPACE` (set by GitHub Actions on the self-hosted runner)
 - Categories: `migrate`, `price`, `recovery`, `usage`, `instruction`, `bug`, `analysis`
 
@@ -22,9 +22,9 @@ rm -rf "$extractPath"
 # Find the most recently created branch (first unique commit vs main)
 latestBranch=""
 latestDate=""
-for branch in $(gh api "repos/jayreck996/ts-toifood-${suffix}/branches" --jq '.[].name'); do
+for branch in $(gh api "repos/toifood-dev/ts-toifood-${suffix}/branches" --jq '.[].name'); do
   [[ "$branch" == "main" ]] && continue
-  created=$(gh api "repos/jayreck996/ts-toifood-${suffix}/compare/main...${branch}" \
+  created=$(gh api "repos/toifood-dev/ts-toifood-${suffix}/compare/main...${branch}" \
     --jq '.commits[-1].commit.committer.date' 2>/dev/null)
   if [[ "$created" > "$latestDate" ]]; then
     latestDate="$created"
@@ -33,7 +33,7 @@ for branch in $(gh api "repos/jayreck996/ts-toifood-${suffix}/branches" --jq '.[
 done
 echo "Newest branch: $latestBranch (created $latestDate)"
 
-gh api "repos/jayreck996/ts-toifood-${suffix}/zipball/${latestBranch}" > "$zipPath"
+gh api "repos/toifood-dev/ts-toifood-${suffix}/zipball/${latestBranch}" > "$zipPath"
 unzip -q "$zipPath" -d "$extractPath"
 root=$(find "$extractPath" -mindepth 1 -maxdepth 1 -type d | head -1)
 echo "$root"
