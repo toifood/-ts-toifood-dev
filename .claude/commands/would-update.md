@@ -19,17 +19,19 @@ zipPath="/tmp/toifood-source.zip"
 extractPath="/tmp/toifood-source"
 rm -rf "$extractPath"
 
-# Find the branch with the most recent commit
+# Find the most recently created branch (first unique commit vs main)
 latestBranch=""
 latestDate=""
 for branch in $(gh api "repos/jayreck996/ts-toifood-${suffix}/branches" --jq '.[].name'); do
-  date=$(gh api "repos/jayreck996/ts-toifood-${suffix}/commits?sha=${branch}&per_page=1" --jq '.[0].commit.committer.date' 2>/dev/null)
-  if [[ "$date" > "$latestDate" ]]; then
-    latestDate="$date"
+  [[ "$branch" == "main" ]] && continue
+  created=$(gh api "repos/jayreck996/ts-toifood-${suffix}/compare/main...${branch}" \
+    --jq '.commits[-1].commit.committer.date' 2>/dev/null)
+  if [[ "$created" > "$latestDate" ]]; then
+    latestDate="$created"
     latestBranch="$branch"
   fi
 done
-echo "Latest branch: $latestBranch ($latestDate)"
+echo "Newest branch: $latestBranch (created $latestDate)"
 
 gh api "repos/jayreck996/ts-toifood-${suffix}/zipball/${latestBranch}" > "$zipPath"
 unzip -q "$zipPath" -d "$extractPath"
