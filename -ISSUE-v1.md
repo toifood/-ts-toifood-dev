@@ -10,6 +10,16 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 ## ISSUE:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:toifood 2026-06-07 13:58 → runner group blocked public repos — fixed before first successful run
+
+**Symptom:** Self-hosted runner online and listening but not picking up queued jobs from `ts-back`.
+
+**Root cause:** Default runner group had `allows_public_repositories: false`. `ts-back` is a public repo — jobs were silently dropped.
+
+**Fix:** `gh api --method PATCH orgs/toifood/actions/runner-groups/1 --field allows_public_repositories=true`
+
+**Hard rule:** When adding a self-hosted runner to a free GitHub org, always check runner group public repo access if any repos are public.
+
 ## ISSUE:toifood 2026-06-07 13:09 → self-hosted runner runs under jayreck account, not jayagent
 
 Decision: use `jayreck` account on Mac Mini for the GitHub Actions self-hosted runner, not `jayagent`.
