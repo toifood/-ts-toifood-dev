@@ -10,6 +10,13 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 ## ISSUE:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:toifood 2026-06-07 → GitHub Actions hosted runner cannot use Claude Pro — OAuth auth is interactive-only
+
+Claude Code CLI authenticates via Claude Pro OAuth (browser login → token saved to `~/.claude/`). GitHub Actions hosted runners (`ubuntu-latest`) are ephemeral VMs — blank slate on every run, no `~/.claude/`, no browser available to complete the OAuth flow. `claude` fails immediately with "not authenticated".
+
+**Why `ANTHROPIC_API_KEY` solves it but breaks the business goal:** API key skips OAuth entirely and works headlessly, but it is separate billing from Claude Pro — defeats the purpose of aligning with the existing subscription.
+
+**Why self-hosted runner (Mac Mini) solves it:** `jayagent` on the Mac Mini already completed the OAuth flow once manually. `~/.claude/` persists between runs. GitHub Actions dispatches to the Mac Mini runner, `claude` reads the existing token, and the job executes under Claude Pro auth. Token refreshes automatically while the subscription is active.
 ## ISSUE:toifood 2026-06-07 → pipeline LLM decision — Claude skill via Mac Mini self-hosted runner
 
 **Decision:** Use Claude Code CLI (Claude Pro) running on the Mac Mini server as a GitHub Actions self-hosted runner. GitHub Actions triggers on schedule → dispatches to Mac Mini → `claude --print "/would-update ts-back"` → writes to category docs → commits and pushes.

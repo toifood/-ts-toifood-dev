@@ -10,6 +10,17 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-07 → Claude Pro auth model confirmed — why self-hosted runner is the only headless path
+
+| Scenario | Auth path | Works headlessly |
+|---|---|---|
+| `claude` on local machine (first run) | Browser OAuth → token saved to `~/.claude/` | N/A — interactive |
+| `claude` on local machine (subsequent) | Reads `~/.claude/` token | ✅ Yes |
+| `claude` on GitHub hosted runner | No `~/.claude/`, no browser — OAuth impossible | ❌ No |
+| `claude` with `ANTHROPIC_API_KEY` | Skips OAuth, uses key directly | ✅ Yes — but separate API billing |
+| `claude` on Mac Mini self-hosted runner | Reads persisted `~/.claude/` from prior manual login | ✅ Yes — Claude Pro |
+
+**Key principle:** Claude Pro OAuth requires a human + browser exactly once per machine. After that, the token in `~/.claude/` is reused automatically. Self-hosted runner on Mac Mini is the only GitHub Actions path that has this persistent auth state.
 ## ASSET:toifood 2026-06-07 → pipeline architecture — Claude skill on Mac Mini self-hosted runner
 
 **Flow:**
