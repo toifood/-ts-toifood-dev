@@ -6,7 +6,7 @@ Analyse the source codebase and update all 10 category docs in the target repo.
 ## Derived values
 - Source repo: `jayreck996/ts-toifood-{suffix}` where suffix = strip `ts-` from `$ARGUMENTS` (e.g. `ts-back` → `back` → `ts-toifood-back`)
 - Target path: `$GITHUB_WORKSPACE` (set by GitHub Actions on the self-hosted runner)
-- Categories: `migrate`, `price`, `recovery`, `usage`, `instruction`
+- Categories: `migrate`, `price`, `recovery`, `usage`, `instruction`, `bug`, `analysis`
 
 ## Steps
 
@@ -36,12 +36,19 @@ Read these files from `$root`:
 
 Hold this codebase context in mind for all 10 analyses.
 
-### 3. For each of the 5 categories × issue/asset (10 total)
+### 3. For each of the 7 categories × issue/asset (14 total)
 
-For each category in `migrate`, `price`, `recovery`, `usage`, `instruction`:
+For each category in `migrate`, `price`, `recovery`, `usage`, `instruction`, `bug`, `analysis`:
+
+**Embedded prompts for `bug` and `analysis` (no `-MUST/` file needed):**
+
+- **bug ISSUE**: Analyze the codebase for overall and undiscovered bugs — hidden errors, edge cases, race conditions, unhandled exceptions, off-by-one errors, null dereferences, async pitfalls. Focus on non-obvious issues that could cause production failures.
+- **bug ASSET**: Identify existing bug-prevention assets in the codebase — error handling, validation, defensive code, test coverage, logging. What is currently protecting against bugs and where are the gaps?
+- **analysis ISSUE**: Provide an overall code quality and architecture analysis. Identify technical debt, architectural concerns, missing patterns, scalability issues, or areas that could degrade under load or growth.
+- **analysis ASSET**: Summarize the overall codebase health — what is well-built, the tech stack, what is production-ready vs. in progress, and what the main engineering strengths are.
 
 #### 3a. ISSUE analysis
-1. Read `$root/-MUST/{category}-ISSUE.md` — this is your analysis instruction/prompt
+1. For `migrate`, `price`, `recovery`, `usage`, `instruction`: read `$root/-MUST/{category}-ISSUE.md` as the instruction. For `bug` and `analysis`: use the embedded prompt above.
 2. Using that instruction and the codebase context from step 2, generate a concise analysis
 3. Format the entry:
    ```
@@ -52,7 +59,7 @@ For each category in `migrate`, `price`, `recovery`, `usage`, `instruction`:
 4. Prepend the entry into `$GITHUB_WORKSPACE/would/{CATEGORY}-ISSUE-V1.md` directly below the `####### <!-- ANCHOR MARKER` line — never edit existing entries below it
 
 #### 3b. ASSET analysis
-1. Read `$root/-MUST/{category}-ASSET.md` — this is your analysis instruction/prompt
+1. For `migrate`, `price`, `recovery`, `usage`, `instruction`: read `$root/-MUST/{category}-ASSET.md` as the instruction. For `bug` and `analysis`: use the embedded prompt above.
 2. Using that instruction and the codebase context from step 2, generate a concise analysis
 3. Format the entry:
    ```
@@ -69,7 +76,7 @@ Run in bash from `$GITHUB_WORKSPACE`:
 cd "$GITHUB_WORKSPACE"
 git config user.name "would-update"
 git config user.email "admin@toigroup.co.nz"
-git add would/MIGRATE-ISSUE-V1.md would/MIGRATE-ASSET-V1.md would/PRICE-ISSUE-V1.md would/PRICE-ASSET-V1.md would/RECOVERY-ISSUE-V1.md would/RECOVERY-ASSET-V1.md would/USAGE-ISSUE-V1.md would/USAGE-ASSET-V1.md would/INSTRUCTION-ISSUE-V1.md would/INSTRUCTION-ASSET-V1.md
+git add would/MIGRATE-ISSUE-V1.md would/MIGRATE-ASSET-V1.md would/PRICE-ISSUE-V1.md would/PRICE-ASSET-V1.md would/RECOVERY-ISSUE-V1.md would/RECOVERY-ASSET-V1.md would/USAGE-ISSUE-V1.md would/USAGE-ASSET-V1.md would/INSTRUCTION-ISSUE-V1.md would/INSTRUCTION-ASSET-V1.md would/BUG-ISSUE-V1.md would/BUG-ASSET-V1.md would/ANALYSIS-ISSUE-V1.md would/ANALYSIS-ASSET-V1.md
 git commit -m "would-update: $(date '+%Y-%m-%d %H:%M') codebase analysis"
 git push
 ```
