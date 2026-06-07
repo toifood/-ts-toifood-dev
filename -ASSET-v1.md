@@ -10,6 +10,16 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-07 → Claude skill execution model confirmed
+
+| Layer | Where it runs | Billing |
+|---|---|---|
+| LLM inference | Anthropic servers | Claude Pro (interactive) or API key (automated) |
+| Tool execution (Bash, Read, Write) | Local machine | Free |
+| GitHub Actions hosted runner | No local machine | Must use API key |
+| GitHub Actions self-hosted runner | Local machine | Claude Pro ✅ |
+
+Claude Pro covers LLM inference only in interactive CLI sessions. Any automated/headless trigger (GitHub Actions hosted) requires `ANTHROPIC_API_KEY`.
 ## ASSET:toifood 2026-06-07 → /would-update skill created — org-level reusable codebase analyser
 
 File: `.claude/commands/would-update.md`
