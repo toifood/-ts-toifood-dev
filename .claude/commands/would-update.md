@@ -71,7 +71,7 @@ For each category in `migrate`, `price`, `recovery`, `usage`, `instruction`, `bu
    
    {analysis content}
    ```
-4. Prepend the entry into `$GITHUB_WORKSPACE/would/{CATEGORY}-ISSUE-V1.md` directly below the `####### <!-- ANCHOR MARKER` line — never edit existing entries below it
+4. Prepend the entry into `$GITHUB_WORKSPACE/could/{CATEGORY}-ISSUE-V1.md` directly below the `####### <!-- ANCHOR MARKER` line — never edit existing entries below it
 
 #### 3b. ASSET analysis
 1. For `migrate`, `price`, `recovery`, `usage`, `instruction`: read `$root/-MUST/{category}-ASSET.md` as the instruction. For `bug` and `analysis`: use the embedded prompt above.
@@ -82,7 +82,7 @@ For each category in `migrate`, `price`, `recovery`, `usage`, `instruction`, `bu
    
    {analysis content}
    ```
-4. Prepend the entry into `$GITHUB_WORKSPACE/would/{CATEGORY}-ASSET-V1.md` directly below the `####### <!-- ANCHOR MARKER` line — never edit existing entries below it
+4. Prepend the entry into `$GITHUB_WORKSPACE/could/{CATEGORY}-ASSET-V1.md` directly below the `####### <!-- ANCHOR MARKER` line — never edit existing entries below it
 
 ### 4. Commit and push
 
@@ -91,7 +91,7 @@ Run in bash from `$GITHUB_WORKSPACE`:
 cd "$GITHUB_WORKSPACE"
 git config user.name "would-update"
 git config user.email "admin@toigroup.co.nz"
-git add would/MIGRATE-ISSUE-V1.md would/MIGRATE-ASSET-V1.md would/PRICE-ISSUE-V1.md would/PRICE-ASSET-V1.md would/RECOVERY-ISSUE-V1.md would/RECOVERY-ASSET-V1.md would/USAGE-ISSUE-V1.md would/USAGE-ASSET-V1.md would/INSTRUCTION-ISSUE-V1.md would/INSTRUCTION-ASSET-V1.md would/BUG-ISSUE-V1.md would/BUG-ASSET-V1.md would/ANALYSIS-ISSUE-V1.md would/ANALYSIS-ASSET-V1.md
+git add could/MIGRATE-ISSUE-V1.md could/MIGRATE-ASSET-V1.md could/PRICE-ISSUE-V1.md could/PRICE-ASSET-V1.md could/RECOVERY-ISSUE-V1.md could/RECOVERY-ASSET-V1.md could/USAGE-ISSUE-V1.md could/USAGE-ASSET-V1.md could/INSTRUCTION-ISSUE-V1.md could/INSTRUCTION-ASSET-V1.md could/BUG-ISSUE-V1.md could/BUG-ASSET-V1.md could/ANALYSIS-ISSUE-V1.md could/ANALYSIS-ASSET-V1.md
 git commit -m "would-update: $(date '+%Y-%m-%d %H:%M') codebase analysis"
 git push
 ```
