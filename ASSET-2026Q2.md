@@ -10,6 +10,10 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-08 → would-update-timing.yml is temporary — retires when would-update.yml is built
+
+`would-update-timing.yml` (quarterly cron) is a placeholder until the pipeline is defined. Once built, timing becomes job 1 inside `would-update.yml` (daily) — same pattern as `ts-*` repos. No commit conflict: timing commits empty files first, pipeline writes content second, sequential in the same run. See `toiflow/-toiflow` ASSET for full pattern detail.
+
 ## ASSET:toifood 2026-06-08 → document structure live — could/ would/ 2026Q2 files created
 
 `would-update.yml` triggered. Timing job created all quarterly files. Structure confirmed.
