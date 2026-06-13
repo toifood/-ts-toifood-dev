@@ -10,6 +10,16 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-13 → ts-repo migration complete — pipeline fully operational from jayreck996/ts-repo
+
+| Component | Final state |
+|---|---|
+| `jayreck996/ts-repo` | Live — listener + skill + workflows |
+| `toifood/-toifood` | Pure docs, no workflows, no code |
+| `toifood/ts-back` | Pure output storage (`could/`, ISSUE/ASSET logs) |
+| PM2 `toigroup-listener` (id 10) | Running from `/Users/jayreck/toifood/ts-repo/toigroup-listener.js` |
+| Secrets on `ts-repo` | `MACMINI_TRIGGER_TOKEN`, `TOIFOOD_CROSS_REPO_TOKEN`, `TOIGROUP_SECRET` ✅ |
+| End-to-end test | `would-update-md.yml` triggered from `ts-repo` → 202 → skill → 16 entries written ✅ |
 ## ASSET:toifood 2026-06-13 → decision: ts-repo as multi-org pipeline engine outside toifood org
 
 All functional pipeline code migrates to `jayreck996/ts-repo` (outside `toifood`):
