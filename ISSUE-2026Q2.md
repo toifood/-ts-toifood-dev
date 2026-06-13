@@ -10,6 +10,11 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 ## ISSUE:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:toifood 2026-06-13 → listener GitHub API writes silently failing — TOIFOOD_CROSS_REPO_TOKEN likely missing from PM2 env
+
+GH Actions `would-update` run (03:47 UTC / 15:47 NZST) got 202 ✅, skill ran async, produced 16 JSON entries ✅. `writeEntriesToGitHub` in `toigroup-listener.js` made no commits to `toifood/ts-back/could/` — silent failure (caught by try/catch, logged only). Most likely cause: `TOIFOOD_CROSS_REPO_TOKEN` not set in PM2 env for `toigroup-listener` process.
+
+Local `ts-back` clone has stale uncommitted `could/` changes from earlier local tests (entries timestamped 15:10–15:19 NZST). These are not from the listener pipeline — the listener never touches the local repo. Should be discarded with `git restore .`.
 ## ISSUE:toifood 2026-06-13 15:48 → RESOLVED — full pipeline live, GitHub Actions passes in 4s
 
 End-to-end confirmed working. GitHub Actions (ubuntu-latest) → POST `local.toigroup.co.nz/would-update` → 202 Accepted in 4s → skill running async on Mac Mini → writes 16 entries to `ts-back/could/` via GitHub API.
