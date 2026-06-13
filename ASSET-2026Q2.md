@@ -10,6 +10,13 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-13 → skill rewritten: source files read via GitHub API, no /tmp/
+
+Replace zip download + /tmp/ extraction with direct gh api reads:
+- File tree: `repos/toifood-dev/ts-toifood-back/git/trees/{branch}?recursive=1`
+- Each file: `repos/toifood-dev/ts-toifood-back/contents/{path}?ref={branch}` — content decoded inline by Claude
+
+Steps 3–6 unchanged — `could/` header reads, analysis, JSON output, cleanup already API-native. Skill is now filesystem-agnostic. Flow unchanged: listener still invokes `claude --print`, still receives JSON.
 ## ASSET:toifood 2026-06-13 → pipeline component status confirmed
 
 | Component | Status |
