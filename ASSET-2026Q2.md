@@ -10,6 +10,15 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-13 → pipeline component status confirmed
+
+| Component | Status |
+|---|---|
+| GH Actions → POST → 202 | ✅ confirmed working |
+| Skill runs async, outputs 16-entry JSON | ✅ confirmed working |
+| `writeEntriesToGitHub` → GitHub API → `toifood/ts-back/could/` | ❌ silently failing |
+
+**Next action:** verify `TOIFOOD_CROSS_REPO_TOKEN` is in PM2 env (`pm2 env 7`), set if missing, then re-trigger `would-update`.
 ## ASSET:toifood 2026-06-13 15:48 → pipeline fully operational — async 202 pattern, listener owns GitHub API writes
 
 ```
