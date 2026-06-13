@@ -1,12 +1,74 @@
 #!/usr/bin/env node
-// toigroup-listener — pure Claude runner, no local state
+// toigroup-listener — responds 202 immediately, runs skill async, writes to GitHub
 // PM2: pm2 start toigroup-listener.js --name toigroup-listener
-// Env: MACMINI_TRIGGER_TOKEN, TOIFOOD_CROSS_REPO_TOKEN, QUARTER_OVERRIDE (optional)
+// Env: MACMINI_TRIGGER_TOKEN, TOIFOOD_CROSS_REPO_TOKEN
 
 const http = require('http');
 const { execSync } = require('child_process');
 
 const PORT = 3456;
+
+function writeEntriesToGitHub(entries, token) {
+  for (const { path, entry } of entries) {
+    try {
+      const file = JSON.parse(execSync(
+        `curl -sf -H "Authorization: Bearer ${token}" ` +
+        `"https://api.github.com/repos/toifood/ts-back/contents/${path}"`
+      ).toString());
+
+      const current = Buffer.from(file.content, 'base64').toString('utf8');
+      const updated = current.replace(
+        /(####### <!-- ANCHOR MARKER[^\n]*\n)/,
+        `$1${entry}\n`
+      );
+
+      const payload = JSON.stringify({
+        message: `would-update: ${path}`,
+        content: Buffer.from(updated).toString('base64'),
+        sha: file.sha,
+        committer: { name: 'would-update', email: 'admin@toigroup.co.nz' },
+      });
+
+      execSync(
+        `curl -sf -X PUT -H "Authorization: Bearer ${token}" ` +
+        `-H "Content-Type: application/json" ` +
+        `"https://api.github.com/repos/toifood/ts-back/contents/${path}" ` +
+        `--data-binary @-`,
+        { input: payload }
+      );
+      console.log(`✅ ${path}`);
+    } catch (e) {
+      console.error(`❌ ${path}:`, e.message);
+    }
+  }
+}
+
+function runSkill(quarter_override) {
+  console.log(`[${new Date().toISOString()}] skill starting`);
+  try {
+    const output = execSync(
+      'claude --dangerously-skip-permissions --print "/would-update ts-back"',
+      {
+        env: {
+          ...process.env,
+          GH_TOKEN: process.env.TOIFOOD_CROSS_REPO_TOKEN,
+          ...(quarter_override ? { QUARTER_OVERRIDE: quarter_override } : {}),
+        },
+        maxBuffer: 10 * 1024 * 1024,
+      }
+    ).toString();
+
+    const jsonMatch = output.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('No JSON array in skill output');
+    const entries = JSON.parse(jsonMatch[0]);
+
+    console.log(`[${new Date().toISOString()}] skill done — ${entries.length} entries`);
+    writeEntriesToGitHub(entries, process.env.TOIFOOD_CROSS_REPO_TOKEN);
+    console.log(`[${new Date().toISOString()}] all entries written`);
+  } catch (e) {
+    console.error(`[${new Date().toISOString()}] skill error:`, e.message);
+  }
+}
 
 function handle(req, res) {
   if (req.method !== 'POST' || req.url !== '/would-update') {
@@ -24,27 +86,13 @@ function handle(req, res) {
   req.on('data', d => { body += d; });
   req.on('end', () => {
     const { quarter_override } = body ? JSON.parse(body) : {};
-    console.log(`[${new Date().toISOString()}] /would-update ts-back${quarter_override ? ` quarter=${quarter_override}` : ''}`);
+    console.log(`[${new Date().toISOString()}] /would-update accepted${quarter_override ? ` quarter=${quarter_override}` : ''}`);
 
-    try {
-      const output = execSync(
-        'claude --dangerously-skip-permissions --print "/would-update ts-back"',
-        {
-          env: {
-            ...process.env,
-            GH_TOKEN: process.env.TOIFOOD_CROSS_REPO_TOKEN,
-            ...(quarter_override ? { QUARTER_OVERRIDE: quarter_override } : {}),
-          },
-          maxBuffer: 10 * 1024 * 1024,
-        }
-      ).toString();
+    // respond before Cloudflare proxy times out (~100s)
+    res.writeHead(202).end('Accepted');
 
-      console.log(`[${new Date().toISOString()}] done — ${output.length} bytes`);
-      res.writeHead(200, { 'Content-Type': 'application/json' }).end(output);
-    } catch (e) {
-      console.error(`[${new Date().toISOString()}] error:`, e.message);
-      res.writeHead(500).end(e.message);
-    }
+    // run skill in background
+    setImmediate(() => runSkill(quarter_override));
   });
 }
 
