@@ -10,6 +10,18 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 ## ISSUE:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:toifood 2026-06-13 → monorepo attempted and reverted — every analysis commit polluted -toifood git history; split repos confirmed as correct structure
+
+Absorbing ts-back into -toifood as a subdirectory was tried and reverted. Core problem: the weekly would-update workflow commits (CSV log, could/ entries) all land in -toifood's git history rather than ts-back's own history. Secondary risk: coupling -toifood and ts-back makes independent team access, archiving, or deprecation harder. Decision: keep repos split. -toifood is the hub/config layer; ts-back is a service layer with its own repo and workflow.
+## ISSUE:toifood 2026-06-13 → push model dependency: if Cloudflare Tunnel on mac-mini is down, GitHub Actions call fails immediately with no retry
+
+In the push model, GitHub Actions (ubuntu-latest) sends an HTTP POST to the mac-mini via Cloudflare Tunnel URL. If the tunnel is down, the job fails instantly — no queue, no 24h wait. Must ensure `cloudflared` service is running and tunnel is healthy on mac-mini before scheduled runs. Unlike the polling model, there is no grace period.
+## ISSUE:toifood 2026-06-13 → mac-mini runner must be online when schedule fires; job dropped after 24h if runner offline
+
+GitHub queues the job when the cron fires, but the mac-mini runner must be running and connected to pick it up. If the mac-mini is offline or the runner service is stopped, the job sits in queue. GitHub drops queued jobs after 24h with no retry. No alert is sent — the run simply never appears. Monitor via GitHub Actions tab if runs go missing.
+## ISSUE:toifood 2026-06-13 → ts-back renamed to -ts-back inside -toifood; standalone toifood/ts-back repo still exists on GitHub
+
+`ts-back/` inside `-toifood` renamed to `-ts-back/` (40 files). Leading dash requires `git mv ts-back ./-ts-back` (dot-slash prefix) and `git add -A` — bare `git add -ts-back/` fails, git parses the `-` as a flag. All internal references updated in `.github/workflows/ts-back-would-update.yml`, `-ts-back/would-update-content.js`, `-ts-back/would-update-csv.js`. The standalone `toifood/ts-back` GitHub repo and local clone at `GitHub\ts-back` are NOT removed — still live. Needs explicit archival decision before decommission.
 ## ISSUE:toifood 2026-06-08 → RESOLVED — would-update-csv.js regex had corrupted → bytes, CSV log never written
 
 `ts-back/would-update-csv.js` headline regex contained double-encoded UTF-8 bytes instead of the correct `→` (U+2192). Every `would-update` run succeeded at analysis + commit but failed at the CSV log step with "No headlines found" — exit code 1.

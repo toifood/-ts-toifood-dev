@@ -10,6 +10,18 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-13 → would-update skill now reads CUSTOM PROMPT + PATHS from each could/ file header as source of truth; TEST category added to ts-back
+
+`-toifood/.claude/commands/would-update.md` skill updated: hardcoded prompts and -MUST/ file dependency removed. For each category/type, Claude reads the `could/` file header to extract two optional fields — `CUSTOM PROMPT` (analysis focus) and `PATHS` (specific source files to prioritise). If both empty, Claude infers from the category name alone. All 28 existing could/ headers in ts-back updated with preset prompts. Four new TEST-ISSUE/ASSET files (Q2+Q3) created. To change analysis behaviour for any category, edit that category's could/ file header — no skill changes needed.
+## ASSET:toifood 2026-06-13 → target architecture: GitHub Actions calls mac-mini via Cloudflare Tunnel (push model, no self-hosted runner needed)
+
+GitHub Actions job runs on `ubuntu-latest` (GitHub-hosted). When the schedule fires, the job sends an HTTP POST to a Cloudflare Tunnel URL that maps to a local HTTP listener on the mac-mini. The mac-mini receives the request, runs Claude Code / analysis locally, then pushes results back to GitHub via git or API. Flow: GitHub cron → ubuntu-latest job → POST to `https://<tunnel>.trycloudflare.com` → mac-mini listener → local execution → push. No self-hosted runner agent needed. Cloudflare Tunnel handles inbound connectivity without port forwarding.
+## ASSET:toifood 2026-06-13 → GitHub Actions self-hosted runner uses outbound polling — no inbound port, no Cloudflare, no NAT traversal needed
+
+The mac-mini runner is always the client. GitHub never connects to the mac-mini. On startup, the runner registers with GitHub via a one-time token, then long-polls `api.github.com` over HTTPS (port 443) asking "any jobs for me?". When a workflow schedule fires, GitHub queues the job server-side. The runner's polling loop picks it up, pulls job details, executes steps locally, and pushes logs back — all outbound. Works behind any home router with no port forwarding, no Cloudflare tunnel, no VPN. Only requirement: outbound HTTPS to github.com.
+## ASSET:toifood 2026-06-13 → -toifood is now a monorepo with -ts-back subdirectory; ts-back-would-update.yml runs on mac-mini runner Monday 6am UTC
+
+`-toifood` absorbs ts-back as `-ts-back/` subdirectory — no independent `.git` inside it, `-toifood` is the single source of truth. Workflow `ts-back-would-update.yml` fires on cron `0 6 * * 1` (Monday 6am UTC). The self-hosted mac-mini runner is a persistent agent that polls GitHub for queued jobs — it must be online when the schedule fires or the job waits (up to 24h). Skill install step is a plain local file copy from `.claude/commands/would-update.md` into `~/.claude/commands/` on the runner — no Cloudflare or remote server involved. Analyse step runs Claude Code on the mac-mini with `working-directory: -ts-back`.
 ## ASSET:toifood 2026-06-08 → would-update-csv.js uses → (→) in regex — encoding must be preserved
 
 `ts-back/would-update-csv.js` line 37 uses `→` (U+2192) as a literal character in the headline-extraction regex. If this file is edited in an editor that mishandles UTF-8, the character will silently corrupt and the CSV step will fail with "No headlines found" on every run.
