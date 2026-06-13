@@ -10,6 +10,23 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-13 → decision: ts-repo as multi-org pipeline engine outside toifood org
+
+All functional pipeline code migrates to `jayreck996/ts-repo` (outside `toifood`):
+
+| File | From | To |
+|---|---|---|
+| `toigroup-listener.js` | `toifood/-toifood` | `jayreck996/ts-repo` |
+| `.claude/commands/would-update.md` | `toifood/-toifood` | `jayreck996/ts-repo` |
+| `.github/workflows/would-update-md.yml` | `toifood/-toifood` | `jayreck996/ts-repo` |
+| `.github/workflows/would-update-timing.yml` | `toifood/-toifood` | `jayreck996/ts-repo` |
+
+**Post-migration state:**
+- `toifood/-toifood` — pure org docs, no workflows, no code
+- `toifood/ts-back` — pure output storage (`could/`, ISSUE/ASSET logs)
+- `jayreck996/ts-repo` — pipeline engine: listener + skill + workflows
+
+**Multi-org design:** listener routes by target — new orgs plug in by adding a target + token. Skill is already target-agnostic. Secrets (`TOIGROUP_SECRET`, `MACMINI_TRIGGER_TOKEN`, `TOIFOOD_CROSS_REPO_TOKEN`) set as repo-level secrets on `ts-repo`.
 ## ASSET:toifood 2026-06-13 → skill rewritten: source files read via GitHub API, no /tmp/
 
 Replace zip download + /tmp/ extraction with direct gh api reads:
