@@ -1,4 +1,4 @@
-Analyse the source codebase and write 14 issue/asset entries to the target repo's could/ directory.
+Analyse the source codebase and write issue/asset entries to the target repo's could/ directory.
 
 ## Arguments
 `$ARGUMENTS` is the target repo name, e.g. `ts-back`.
@@ -6,7 +6,7 @@ Analyse the source codebase and write 14 issue/asset entries to the target repo'
 ## Derived values
 - Source repo: `toifood-dev/ts-toifood-{suffix}` where suffix = strip `ts-` from `$ARGUMENTS`
 - Target: `$GITHUB_WORKSPACE/could/`
-- Categories: `migrate`, `price`, `recovery`, `usage`, `instruction`, `bug`, `analysis`
+- Categories: `migrate`, `price`, `recovery`, `usage`, `instruction`, `bug`, `analysis`, `test`
 
 ## Steps
 
@@ -60,66 +60,32 @@ Read from `$root`:
 - `prisma/schema.prisma` (skip if absent)
 - Full content of all files under `src/` — routes, middleware, services, entry points
 
-Also read `-MUST/{category}-ISSUE.md` and `-MUST/{category}-ASSET.md` for: `migrate`, `price`, `recovery`, `usage`, `instruction`.
-
-Hold all codebase content and -MUST/ instructions in context for all 14 analyses.
+Hold all codebase content in context for all analyses.
 
 ### 3. Generate analyses and write to could/
 
-For each category in `migrate`, `price`, `recovery`, `usage`, `instruction`, `bug`, `analysis` — generate both ISSUE and ASSET entries.
-
-**Embedded prompts for `bug` and `analysis`:**
-- **bug ISSUE**: Undiscovered bugs — edge cases, race conditions, null dereferences, async pitfalls, production risks.
-- **bug ASSET**: Existing bug-prevention assets — error handling, validation, test coverage, logging, gaps.
-- **analysis ISSUE**: Code quality — technical debt, architectural concerns, missing patterns, scalability risks.
-- **analysis ASSET**: Codebase health — what is well-built, the tech stack, production-ready vs in progress.
-
-For `migrate`, `price`, `recovery`, `usage`, `instruction`: use the matching `-MUST/` instruction read in step 2.
+For each category in `migrate`, `price`, `recovery`, `usage`, `instruction`, `bug`, `analysis`, `test` — generate both ISSUE and ASSET entries.
 
 For each category/type:
-1. Generate a concise analysis grounded in the actual source code
-2. Format the entry:
+
+1. Read the corresponding `could/{CATEGORY}-{TYPE}-${QUARTER}.md` file from `$GITHUB_WORKSPACE/could/`. Extract the header section (everything above the `####### <!-- ANCHOR MARKER` line):
+   - **CUSTOM PROMPT** — use as the analysis focus for this entry. If empty, infer from the category name.
+   - **PATHS** — if present, prioritise reading those specific paths from the source repo before the general `src/` scan. If empty, use the full `src/` scan from step 2.
+
+2. Generate a concise analysis grounded in the actual source code, shaped by the CUSTOM PROMPT.
+
+3. Format the entry:
    ```
    ## ISSUE:{category} {TS} → {one-line summary}
 
    {analysis content}
    ```
    (use `ASSET:` prefix for asset type)
-3. Write to `$GITHUB_WORKSPACE/could/{CATEGORY}-{TYPE}-${QUARTER}.md`:
-   - File does not exist → create with the header below, then insert entry after anchor
-   - File exists → find `####### <!-- ANCHOR MARKER` line, insert entry directly below it
 
-**ISSUE header:**
-```
-ISSUE LOG
-INSTRUCTION FOR AI MODEL:
-
-ALWAYS ADD NEW ISSUE ENTRIES AT THE TOP, DIRECTLY BELOW THIS HEADER.
-
-NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES.
-
-REQUIRED FORMAT FOR EACH ISSUE ENTRY:
-
-## ISSUE:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} -> {CONTENT}
-
-####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
-```
-
-**ASSET header:**
-```
-ASSET LOG
-INSTRUCTION FOR AI MODEL:
-
-ALWAYS ADD NEW ASSET ENTRIES AT THE TOP, DIRECTLY BELOW THIS HEADER.
-
-NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES.
-
-REQUIRED FORMAT FOR EACH ASSET ENTRY:
-
-## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} -> {CONTENT}
-
-####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
-```
+4. Write to the file:
+   - Find the `####### <!-- ANCHOR MARKER` line
+   - Insert the new entry directly below it
+   - Never delete or edit entries below the marker
 
 ### 4. Clean up
 ```bash
