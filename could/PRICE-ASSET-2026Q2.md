@@ -14,6 +14,7 @@ CUSTOM PROMPT:
 Pricing logic correctness, audit trails, webhook idempotency
 
 PATHS:
+would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
 ## ASSET:price 2026-06-13 18:11 → Role-tiered rate limiting correctly implemented with Redis atomicity
