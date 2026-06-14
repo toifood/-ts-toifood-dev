@@ -17,6 +17,14 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:analysis 2026-06-14 23:03 → cross-provider pantry alignment analysis to validate premium upsell
+
+`logs/recipe-metrics.csv` captures `requestedProvider`, `usedProvider`, `pantryPct`, `groceryPct`, `responseMs`, and `style` for every generation. An analysis grouping by `usedProvider` (ollama vs claude) would reveal:
+1. Which provider produces higher pantry alignment (does Claude produce recipes that use more of the selected ingredients?)
+2. Response time distribution per provider (Ollama is local — does latency differ meaningfully?)
+3. Fallback rate (`fallback=true` rows) — how often does Claude fail and fall through?
+
+This directly informs whether the premium Claude tier delivers measurable recipe quality improvement over the free Ollama tier, which is the core value proposition for monetisation.
 ## ISSUE:analysis 2026-06-13 18:11 → PM2/log logic duplicated across three files; insights bypasses AIProvider abstraction
 
 The logic for reading PM2 process status, recent logs, and today's CSV metrics is duplicated across `src/digest.ts`, `src/slack-bot.ts`, and `src/routes/chat.ts` — three separate implementations that will diverge on any change to PM2's output format. `src/services/ai/insights.ts` hardcodes Ollama for suggestion generation, ignoring the `AIProvider` abstraction used everywhere else; if Ollama is down, suggestions silently degrade to templated fallback strings with no indication to the user. `src/services/ai/provider.ts` at 500+ lines mixes emoji keyword tables, region mappings, and prompt builder functions — unrelated concerns in one file. `GET /recipes` has no pagination, creating a latency ceiling as user recipe counts grow.
