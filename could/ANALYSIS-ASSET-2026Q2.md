@@ -17,6 +17,9 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:analysis 2026-06-15 09:12 → AIProvider interface, discover SQL query, and extractFoodEmoji pipeline are well-abstracted and production-ready
+
+Three strong structural patterns: (1) `src/services/ai/index.ts` exposes `getAIProvider()` — a clean factory that switches between `OllamaProvider`, `ClaudeProvider`, and `OpenAIProvider` via `AI_PROVIDER` env var. All providers implement the `AIProvider` interface with a single `generateRecipe()` method, making future provider addition a contained change. (2) `GET /recipes/discover` uses a single raw SQL query with LATERAL join to compute pantry match counts and grocery percentages in one DB round-trip — correct and efficient, avoiding N+1 fetch patterns. (3) `extractFoodEmoji()` implements a deterministic four-stage pipeline: AI emoji gate → title keyword inference → ingredient inference → hardcoded fallback. Each stage has a clear fallthrough contract. The `FOOD_DRINK_SET` gate intentionally excludes dishware and drink emojis, which is documented inline.
 ## ASSET:analysis 2026-06-14 23:03 → metric columns available for cross-provider recipe quality analysis
 
 From `logs/recipe-metrics.csv`:
