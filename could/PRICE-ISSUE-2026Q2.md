@@ -17,6 +17,13 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:price 2026-06-14 23:03 → add per-call cost tracking for Claude provider in metrics CSV
+
+Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) is used for recipe generation. A typical call is ~200 tokens in + ~300 tokens out ≈ $0.0003/call (input $0.0008/1K, output $0.004/1K). No cost is currently captured in `logs/recipe-metrics.csv`.
+
+Add `costUsd` column to `appendMetric()` in `src/routes/recipes.ts:844`. For Ollama calls, `costUsd = 0`. For Claude, derive from token counts in the Anthropic response `usage` field (already available on the response object — just not captured).
+
+At 1,000 Claude generates/day the monthly cost would be ~$9 — low now, but knowing usage trends enables the premium tier pricing decision.
 ## ISSUE:price 2026-06-13 18:11 → No subscription webhook handling; role upgrades to premium have no automated trigger
 
 The backend has a `UserRole` enum (`free`, `premium`, `admin`) with role-tiered rate limits, but there is no code path that upgrades a user from `free` to `premium` in response to a payment event. `src/services/appstore.ts` and `src/services/playstore.ts` only fetch analytics metrics — neither handles StoreKit 2 server notifications or Google Play Real-Time Developer Notifications. A user who pays via the App Store would remain on the `free` rate limit indefinitely. There is no `roleUpdatedAt` field, no log event on role change, and no idempotency guard, making manual upgrades unauditable and risky to double-apply.
