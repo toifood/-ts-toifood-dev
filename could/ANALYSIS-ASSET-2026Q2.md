@@ -14,6 +14,7 @@ CUSTOM PROMPT:
 Well-structured patterns, test coverage, production-ready components
 
 PATHS:
+would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
 ## ASSET:analysis 2026-06-13 18:11 → Clean AIProvider abstraction, atomic Redis patterns, and production-grade auth flows
