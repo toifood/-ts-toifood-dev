@@ -17,6 +17,9 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:price 2026-06-15 09:12 → Claude premium tier is bypassable — any free user can request Claude by sending provider:"claude" in the request body
+
+`src/routes/recipes.ts` line 235 computes `isPremium = user?.role !== "free"` but never uses this value before line 253: `if (provider === "claude" && process.env.ANTHROPIC_API_KEY)`. The only gate is whether the env var is set and whether the client sends `"provider": "claude"` in the JSON body. A free-tier user who calls `POST /recipes/generate` with `{"provider": "claude", ...}` directly against the API gets a full Claude Haiku generation, incurring Anthropic API cost, with no role check. The `isPremium` variable is assigned but dead — it is never referenced in a conditional guard on the Claude branch. This is an API-level billing bypass, not just a UI issue.
 ## ISSUE:price 2026-06-14 23:03 → add per-call cost tracking for Claude provider in metrics CSV
 
 Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) is used for recipe generation. A typical call is ~200 tokens in + ~300 tokens out ≈ $0.0003/call (input $0.0008/1K, output $0.004/1K). No cost is currently captured in `logs/recipe-metrics.csv`.
