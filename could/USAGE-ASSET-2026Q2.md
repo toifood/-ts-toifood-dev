@@ -14,6 +14,7 @@ CUSTOM PROMPT:
 Monitoring hooks, structured logging, observability coverage
 
 PATHS:
+would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
 ## ASSET:usage 2026-06-13 18:11 → Per-request structured logging and multi-channel daily digest provide strong operational visibility
