@@ -17,6 +17,18 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:analysis 2026-06-14 23:03 → metric columns available for cross-provider recipe quality analysis
+
+From `logs/recipe-metrics.csv`:
+- **Provider**: `requestedProvider`, `usedProvider`, `fallback`
+- **Quality**: `pantryPct` (selected items used / selected items), `groceryPct` (pantry items / total ingredients), `steps`, `ingredientCount`
+- **Performance**: `responseMs`
+- **Context**: `style` (classic/creative), `filters`, `continent`, `promptVersion`
+
+From `logs/discover-metrics.csv`:
+- `avgPantryPct`, `avgGroceryPct` across discover feed results per user session
+
+Note: `groceryPct` in metrics CSV is currently miscalculated (see BUG-ISSUE-2026Q2) — cross-provider analysis should use `pantryPct` as the reliable signal until the bug is fixed.
 ## ASSET:analysis 2026-06-13 18:11 → Clean AIProvider abstraction, atomic Redis patterns, and production-grade auth flows
 
 The `AIProvider` interface with three concrete implementations (Ollama, OpenAI, Claude) behind a factory function is a clean extension point — adding a new provider requires only a new class and a factory switch case. The Redis Lua INCR+EXPIRE script is a production-correct atomic concurrency pattern. `pluralStem` + `stemMatch` in `cookRecords.ts` handles 15 irregular plurals (leaf/leaves, knife/knives, etc.) with an explicit invariant table. Apple Sign In uses native Node.js `crypto.createPublicKey({ format: 'jwk' })` without extra dependencies. The `@@unique([userId, flowId])` constraint on `UserFlowView` prevents duplicate flow records at the DB layer regardless of concurrent requests.
