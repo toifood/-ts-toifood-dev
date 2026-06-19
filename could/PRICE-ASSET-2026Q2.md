@@ -17,6 +17,34 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:price 2026-06-19 16:46 → Rate limit configuration and cost reference
+
+**Rate limit table** (`src/middleware/rateLimit.ts`):
+
+| Role | Ollama/hr | Claude/hr |
+|---|---|---|
+| `free` | 3 | 2 |
+| `premium` | 10 | 5 |
+| `admin` | 999 | 999 |
+
+**Redis key pattern:** `ratelimit:{userId}:{provider}` (TTL: 3600s, set on first increment)
+
+**AI model cost reference (2026Q2 pricing):**
+- `claude-haiku-4-5-20251001`: ~$0.80/MTok input, ~$4.00/MTok output
+- Typical recipe prompt: ~400–600 input tokens, ~300–500 output tokens
+- Estimated cost per Claude call: ~$0.0002–$0.0005
+- `qwen2.5:7b` via Ollama: self-hosted, compute cost only (Mac mini M4, no cloud spend)
+
+**Upgrade path (manual):** Admin sets `User.role = 'premium'` directly via DB or admin route. No automated billing flow exists.
+
+**Usage/cost logging:** `recipe-metrics.csv` logs `requestedProvider`, `usedProvider`, `fallback` per generation. Daily digest summarises counts by model. No per-user cost aggregation exists.
+
+**Fallback cost note:** Claude failure → Ollama fallback is logged as `fallback: true` in CSV. The Claude API call still incurs input token cost even on failure (if the request reached Anthropic before erroring).
+
+**`GET /recipes/usage` response shape:**
+```json
+{ "ollama": { "used": 1, "max": 3, "ttl": 3412 }, "claude": { "used": 0, "max": 2, "ttl": 0 } }
+```
 ## ASSET:price 2026-06-19 16:05 → Redis rate limit correctly uses increment-then-expire pattern; fail-open on Redis outage prevents generation downtime
 
 The rate limit implementation in `src/middleware/rateLimit.ts` uses `redis.incr(key)` followed by `redis.expire(key, 3600)` only when `count === 1`, which is the correct pattern to avoid resetting the TTL on every request. If `expire` is called on every increment, a sustained burst would never expire — the implementation avoids this correctly. When Redis is unavailable, the catch block logs a warning and calls `next()` (fail-open), ensuring a Redis outage never blocks recipe generation for users. The `getRecipeUsage()` export returns `{ used: 0, max: LIMITS.free.ollama, ttl: 0 }` on Redis failure, giving the client a graceful degraded state rather than an error response.
