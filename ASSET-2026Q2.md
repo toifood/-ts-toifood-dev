@@ -10,6 +10,10 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-19 → toifood org repos renamed to leading-dash format — targets.json updated
+
+ts-web renamed to -ts-toifood-web, ts-back renamed to -ts-toifood-back. targets.json in jayreck996/ts-repo updated so outputRepo values point to toifood/-ts-toifood-web, toifood/-ts-toifood-back, toifood/-ts-toifood-dev. All would-update-timing jobs now check out correct repos. June 13 ref-not-found failure was caused by this rename and self-resolved after targets.json was corrected.
+
 ## ASSET:toifood 2026-06-13 → ts-repo migration complete — pipeline fully operational from jayreck996/ts-repo
 
 | Component | Final state |
