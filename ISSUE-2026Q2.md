@@ -10,6 +10,10 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 ## ISSUE:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:toifood 2026-06-19 → HTTP 530 persists even with Mac Mini on — cloudflared tunnel not running
+
+would-update-md returned 530 twice after Mac Mini was confirmed on. Root cause: Mac Mini on does not guarantee the Cloudflare tunnel is connected. cloudflared process (toigroup-tunnel in PM2) must also be running and healthy. Fix: \pm2 status\ on Mac Mini — if toigroup-tunnel is stopped or errored, \pm2 restart toigroup-tunnel\. 530 = tunnel process down; not a machine power issue.
+
 ## ISSUE:toifood 2026-06-19 → would-update-md not writing to -ts-toifood-dev — two possible causes, diagnosis via pm2 logs
 
 When would-update-md runs and no new entries appear in -ts-toifood-dev, two scenarios:
