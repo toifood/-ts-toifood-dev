@@ -17,6 +17,18 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:backend 2026-06-20 11:39 -> Two new architectural concerns — storeReport writes to non-existent path, and auth events push user IPs to GitHub
+
+**1. `storeReport.ts` writes to `-ARCHIVE/-WOULD/` — path does not exist**
+`src/storeReport.ts` hardcodes:
+```ts
+const ISSUE_PATH = path.join(process.cwd(), "-ARCHIVE", "-WOULD", "usage-issue-v1.md");
+const ASSET_PATH = path.join(process.cwd(), "-ARCHIVE", "-WOULD", "usage-asset-v1.md");
+```
+Neither `-ARCHIVE/` nor `-ARCHIVE/-WOULD/` exists in the `ts-toifood-back` repo tree. Every weekly store KPI report fails with `ENOENT` at `prependEntry()`. The App Store and Play Store metrics are fetched successfully (API calls complete) but are silently discarded because the write target doesn't exist. This means the `storeReport` cron job has been producing no output since it was introduced.
+
+**2. `pushRowToGitHub()` in `auth.ts` commits user IPs to a GitHub repository**
+Every non-local login/register event appends a row to `toifood-dev/ts-toifood-dev/would/AUTH-METRIC.csv` via the GitHub Contents API. Each row includes `ip` (real client IP, stripped of IPv4-mapped prefix). If `ts-toifood-dev` is ever made public or the `TOIFOOD_CROSS_REPO_TOKEN` is rotated without deleting the file, user IPs become externally visible. IP addresses are personal data under GDPR and the New Zealand Privacy Act 2020. The file is a commit-history artifact — deletion does not remove it from git history.
 ## ISSUE:analysis 2026-06-19 16:46 → Single-host architecture with OG image blob storage and missing FK indexes as primary growth risks
 
 **Architecture:** Node.js Express on Mac mini M4 (jayreck), Ollama on same host (jayagent), PostgreSQL + Redis local, Cloudflare Tunnel for ingress. All single-instance, no redundancy.
