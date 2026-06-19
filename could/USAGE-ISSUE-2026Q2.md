@@ -17,6 +17,9 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:usage 2026-06-19 14:28 → UserDataContext.refresh() fires 4 API calls on auth change AND on every app foreground with no deduplication; recipeAPI.getMyRecipes() fetches full payloads just for a count
+
+Two performance concerns: (1) `UserDataContext.refresh()` issues four parallel requests (`getPreferences`, `getUsage`, `pantryAPI.getAll`, `recipeAPI.getMyRecipes`) on every `isAuthenticated` change AND on every `AppState 'active'` event (via the second `useEffect`). If the user locks and unlocks their phone, all four calls fire. No debounce, no flag guard against concurrent in-flight calls, no cache TTL. (2) `recipeAPI.getMyRecipes()` (`GET /recipes`) returns up to 500 full recipe objects including `ingredients[]`, `steps[]`, and `pantryUsed[]` arrays — several MB of JSON — just to compute `setRecipeCount(recipes.length)`. A `/recipes/count` endpoint or a `_count` select would reduce this to a single integer.
 ## ISSUE:usage 2026-06-15 09:12 → GET /recipes fetches up to 500 full recipe objects with no cursor pagination; emojiCache has no size bound
 
 `src/routes/recipes.ts` line 562–587: `prisma.recipe.findMany` with `take: 500` and no cursor pagination. Each row includes `ingredients` (string[]), `steps` (string[]), `pantryUsed` (string[]) — the full recipe payload. For a user with 400+ saved recipes, this single query returns several MB of JSON on every app load. There is no incremental loading. Combined with the `savedListItems: { select: { listId: true } }` join, this is an N-row lateral join. As usage grows, this endpoint will dominate response latency. Secondary: `emojiCache` Map (line 18) accumulates Twemoji PNG buffers (~3–8 KB each) indefinitely per process lifetime with no eviction — a minor but real memory growth vector over days.
