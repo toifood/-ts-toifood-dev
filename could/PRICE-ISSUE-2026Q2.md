@@ -17,6 +17,23 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:price 2026-06-19 16:46 → Rate limits are Redis-ephemeral and the tier model has no automated billing enforcement
+
+**Current model:** `free` = 3 Ollama / 2 Claude per hour; `premium` = 10 Ollama / 5 Claude per hour; `admin` = unlimited. Limits stored in Redis with 1-hour TTL keys.
+
+**Issues:**
+
+1. **Redis restart resets all counters.** Redis runs locally with no persistence configured (no RDB/AOF mentioned). If Redis restarts, all hourly rate-limit counts reset to zero — users can exhaust limits, trigger a restart, and repeat. For current scale this is acceptable risk, but worth noting.
+
+2. **Claude limits are very tight (free: 2/hr, premium: 5/hr).** Claude handles dietary filters and continent preferences (Ollama does not). A 2/hr cap makes the higher-quality provider barely usable for free users. Premium at 5/hr is also modest if Claude is the main premium differentiator.
+
+3. **No billing integration.** `User.role` is set manually by an admin. There is no Stripe, RevenueCat, or similar integration. Upgrading to premium requires out-of-band action, limiting monetisation automation.
+
+4. **No per-user cost attribution.** Redis tracks call counts, not cost. If a small number of premium users dominate Claude usage, there is no alerting mechanism. `claude-haiku-4-5-20251001` costs ~$0.80/MTok input, ~$4.00/MTok output — at current scale (~$0.0003/call) this is negligible, but not tracked.
+
+5. **Rate limit usage counter survives client disconnect.** A user's Redis counter increments even if the Claude/Ollama call later fails (fallback counts against Ollama quota too? — no, fallback uses Ollama key). Claude failure → Ollama fallback counts against Ollama quota, not Claude, which is correct.
+
+**Recommendation:** Add Redis persistence (`appendonly yes`). Consider surfacing remaining Claude generations prominently in the app UI as a premium conversion nudge.
 ## ISSUE:price 2026-06-19 16:05 → Rate limit window is hourly not daily; client shows CLAUDE_DAILY_LIMIT=3 while server enforces 2 per hour creating a limit mismatch
 
 The Redis rate limiter in `src/middleware/rateLimit.ts` sets TTL to `60 * 60` seconds (1 hour) per provider key (`ratelimit:{userId}:ollama`, `ratelimit:{userId}:claude`). Limits are 3 Ollama + 2 Claude for free users, resetting every hour. The mobile client's `src/utils/claudeLimit.ts` (referenced in `src/routes/recipes.ts` context and visible in PRICE-ISSUE entries) defines `CLAUDE_DAILY_LIMIT = 3` — a different cap on a different time window. A free user gets 2 Claude generations per hour from the server but the app UI signals a daily cap of 3. After waiting 1 hour, the server counter resets and they get another 2. There is no daily ceiling server-side. The premium tier's `{ claude: 5 }` per-hour limit is likewise never bounded at a daily level, making worst-case Anthropic cost theoretically unbounded within a 24-hour period.
