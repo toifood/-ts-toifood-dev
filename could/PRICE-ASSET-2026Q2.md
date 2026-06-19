@@ -17,6 +17,9 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:price 2026-06-19 14:28 → bannerUsage from recipeAPI.getUsage() provides server-validated quota display independent of client-side SecureStore counter
+
+`UserDataContext` fetches `bannerUsage` via `recipeAPI.getUsage()` (`GET /recipes/usage`) which returns `{ ollama: { used, max, ttl }, claude: { used, max, ttl } }` from the backend's Redis rate-limit state. This is the authoritative quota source — it cannot be bypassed by reinstall. The client-side `claudeLimit.ts` counter in `AnnouncementBanner` serves as a fast local read, but `bannerUsage` provides the correct fallback for any discrepancy. `user.role` (free/premium/admin) is also returned by the backend and used throughout the UI for premium gating, keeping role state server-authoritative.
 ## ASSET:price 2026-06-15 09:12 → recipe-metrics.csv provides per-request cost attribution with requestedProvider, usedProvider, and fallback fields
 
 `src/routes/recipes.ts` calls `appendMetric()` for every generation, writing `requestedProvider`, `usedProvider`, `fallback`, and `responseMs` to `logs/recipe-metrics.csv`. This means every Claude call is auditable: if `requestedProvider=claude` and `usedProvider=ollama` and `fallback=true`, the Anthropic call failed and incurred no cost. If `usedProvider=claude` and `fallback=false`, cost was incurred. The `promptVersion` field (`claude-v4`, `ollama-v4`) tracks which prompt template was used, enabling per-version cost regression analysis. The `getRecipeUsage()` middleware in `src/middleware/rateLimit.ts` enforces per-user daily generation caps, limiting worst-case billing exposure.
