@@ -17,6 +17,33 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:backend 2026-06-20 11:39 -> Pricing infrastructure snapshot — unchanged limits, no billing integration, Redis dump in repo confirmed
+
+**Rate limit table (current, unchanged since June 13th):**
+
+| Role | `ollama`/hr | `claude`/hr |
+|---|---|---|
+| `free` | 3 | 2 |
+| `premium` | 10 | 5 |
+| `admin` | bypass | bypass |
+
+**Role elevation paths (current):**
+
+| Path | Mechanism |
+|---|---|
+| `free` → `premium` | Manual DB update by admin or `PATCH /admin/users/:id/role` (if such endpoint exists) |
+| `free` → `admin` | Manual DB update only |
+| Apple IAP | Not implemented — `appstore.ts` reads metrics only, no receipt validation |
+| Google Play billing | Not implemented — `playstore.ts` reads crash/ANR rates only, no subscription API |
+
+**Redis state for rate limiting:**
+- Key pattern: `ratelimit:{userId}:{provider}` (TTL: 3600s)
+- Insight cooldown: `insights:cooldown:{userId}` (TTL: 604800s / 1 week)
+- `dump.rdb` present in repo root — Redis SAVE configured but persistence to repo working directory is not isolated from source code
+- No Redis persistence confirmation on restore: counters reset to 0 on restart (free hourly reset for all users)
+
+**Usage endpoint:**
+`GET /1-1-1/api/recipes/usage` — returns `{ ollama: { used, max, ttl }, claude: { used, max, ttl } }` for the authenticated user. No admin aggregate view of system-wide usage.
 ## ASSET:price 2026-06-19 16:46 → Rate limit configuration and cost reference
 
 **Rate limit table** (`src/middleware/rateLimit.ts`):
