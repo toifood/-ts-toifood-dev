@@ -17,6 +17,27 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:backend 2026-06-20 11:39 -> Codebase health snapshot update — new feature surface, GitHub auth-metric push, storeReport path bug confirmed
+
+**Changes since 2026-06-13 entry:**
+
+| Area | Status |
+|---|---|
+| `routes/cookRecords.ts` | Active in production — tracks STARTED/COMPLETED/ABANDONED cook sessions |
+| `routes/flows.ts` | Active — first-login and manual flows, UserFlowView recorded per user |
+| `routes/insights.ts` | Active — UserInsight CRUD, `runInsightAnalysis()` fires after every recipe save |
+| `routes/admin.ts` | Active — admin-only endpoints for managing roles, flows, insights |
+| AUTH-METRIC GitHub push | New — every external auth event pushed to `would/AUTH-METRIC.csv` in `ts-toifood-dev` via TOIFOOD_CROSS_REPO_TOKEN |
+| `storeReport.ts` path | Broken — writes to `-ARCHIVE/-WOULD/` which does not exist; all store KPI writes silently fail |
+| `getAIProvider()` factory | Still dead code — routes still instantiate providers directly |
+| OG image in BYTEA | Unchanged — `Recipe.ogImage Bytes?` still in PostgreSQL; no CDN migration |
+| Recipe CSV metrics | Still local-only flat files; no DB or platform migration |
+
+**Active AI provider usage (production):**
+- Ollama: default for `POST /recipes/generate` (local `qwen2.5:7b`)
+- Claude: optional, selected via `provider: "claude"` in request body; falls back to Ollama on error
+- Insights analysis: Ollama only (`src/services/ai/insights.ts`) — Claude and OpenAI not used
+- OpenAI: still present (`src/services/ai/openai.ts`) but not wired into any route
 ## ASSET:analysis 2026-06-19 16:46 → Architecture topology, dependency map, and request flow reference
 
 **Runtime topology:**
