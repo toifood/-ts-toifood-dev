@@ -17,6 +17,18 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:backend 2026-06-20 11:39 -> Two new usage gaps — AUTH-METRIC pushed to GitHub but IPs stored unredacted, and storeReport output has been silently missing since introduction
+
+**New finding 1 — AUTH-METRIC.csv in GitHub repo contains unredacted user IPs**
+`pushRowToGitHub()` in `src/routes/auth.ts` pushes each auth event row to `toifood-dev/ts-toifood-dev/would/AUTH-METRIC.csv`. The `ip` field is the raw client IP (IPv4-mapped prefix stripped but otherwise unredacted). This file is now growing in `ts-toifood-dev` git history. If repo access is ever broadened or the file is referenced in analytics tooling, user IPs are exposed. The `would/AUTH-METRIC.csv` currently in `ts-toifood-dev` contains rows from production auth events. Retention of IPs in a Git-tracked file is a data minimisation concern.
+
+**New finding 2 — storeReport output has been missing since introduction**
+`storeReport.ts` writes to `-ARCHIVE/-WOULD/usage-issue-v1.md` and `-ARCHIVE/-WOULD/usage-asset-v1.md`. Neither path exists. Every scheduled store KPI report has been failing silently with `ENOENT`. The `USAGE-ISSUE-V1.md` entries showing iOS installs=0 (logged 2026-05-31) were likely written before the path was changed — or the cron was manually run from a different working directory. No store KPI data has been recorded in the intended location since the `-ARCHIVE/-WOULD/` path was introduced.
+
+**Ongoing gaps (unchanged from June 13th):**
+- Rate-limit hit rate (429 events) not tracked in any CSV or metric
+- CookRecord abandonment rate not surfaced in digest or any report
+- Insight generation/acceptance rate not reported
 ## ISSUE:usage 2026-06-19 16:46 → Metrics are flat-file CSV with no retention, funnel, or user-level aggregation; user IDs committed to git
 
 **Issues found:**
