@@ -10,6 +10,13 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 ## ISSUE:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:toifood 2026-06-19 → would-update-md not writing to -ts-toifood-dev — two possible causes, diagnosis via pm2 logs
+
+When would-update-md runs and no new entries appear in -ts-toifood-dev, two scenarios:
+(1) Skill ran and found nothing new to report — source repo unchanged since last run, no entries generated.
+(2) Skill ran and produced entries but writeEntriesToGitHub failed silently — caught by try/catch in toigroup-listener.js, logged only, workflow still shows green.
+Only way to distinguish: check \pm2 logs toigroup-listener\ on the Mac Mini immediately after a run. If entries were generated but not committed, the error will be in the logs.
+
 ## ISSUE:toifood 2026-06-19 → would-update-md silent write risk — listener 202 does not confirm GitHub commit
 
 When Mac Mini is on and would-update-md receives 202, the listener runs async. If writeEntriesToGitHub fails (token issue, API error), the workflow shows green but nothing commits to -ts-toifood-dev. Only detectable via pm2 logs toigroup-listener on the Mac Mini after each run.
