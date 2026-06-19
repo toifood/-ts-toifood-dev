@@ -10,6 +10,10 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-19 → WOULD-UPDATE-MD-LOG proposal — eliminates pm2 logs dependency for run diagnosis
+
+Currently the only way to know if a would-update-md run actually wrote entries is to check pm2 logs toigroup-listener on the Mac Mini — requires machine to be on and accessible. Proposal in jayreck996/ts-repo/would/WOULD-UPDATE-MD-LOG.log moves run outcome visibility into GitHub: every trigger attempt (success or fail) appends a log line to would/WOULD-UPDATE-MD-LOG.log via GITHUB_TOKEN on ubuntu-latest. Post-implementation, pm2 logs is no longer needed to diagnose the trigger layer. Implementation itself is also fully remote — no local machine required.
+
 ## ASSET:toifood 2026-06-19 → WOULD-UPDATE-MD-LOG proposal — no local machine required to implement
 
 Proposal in jayreck996/ts-repo/would/WOULD-UPDATE-MD-LOG.log. Implementation requires two changes: (1) edit would-update-md.yml via GitHub API to add an if:always() log step and capture http_code output from the trigger step — both doable remotely. (2) Log step itself runs on ubuntu-latest using GITHUB_TOKEN, which is automatic — no Mac Mini involved. Mac Mini is only needed for the existing trigger step (listener call), not for the logging addition. Entire implementation can be done without the machine being on.
