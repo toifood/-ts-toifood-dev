@@ -17,6 +17,9 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:usage 2026-06-19 16:05 → stats endpoint uses in-memory cache with stale fallback; appendMetric/appendDiscoverMetric lazy-initialize CSV files with no external dependency
+
+Two solid resource management patterns: (1) `GET /stats` in `src/index.ts` caches `{ recipesGenerated, cooksJoined }` for 60 seconds with `statsCache` + `statsCachedAt`, rounds counts to the nearest 10 for privacy, and falls back to stale cache on DB error — a correct pattern for a public-facing endpoint that could receive high traffic from the landing page without burdening the DB. (2) `appendMetric()` and `appendDiscoverMetric()` in `src/routes/recipes.ts` both create the `logs/` directory and write the CSV header on first write using `fs.existsSync` guards. No external setup, no migration, no DB table — the analytics pipeline starts automatically on first recipe generation. Errors are caught and warn-logged rather than throwing, so a disk-full event degrades metrics but does not break recipe generation.
 ## ASSET:usage 2026-06-19 14:28 → Promise.allSettled in addPantryItems handles partial batch failure; AppState listener correctly scopes re-checks to emailVerified only
 
 `UserDataContext.addPantryItems` uses `Promise.allSettled` so a 409 duplicate on one item doesn't abort the whole batch — 409s are filtered as expected, other errors are surfaced via throw. The `AppState.addEventListener` in the second `useEffect` is correctly scoped to only re-check `emailVerified` (not full refresh), minimising unnecessary load on foreground. The `isPrefsStale` flag (30-day threshold) provides a UI signal to prompt re-engagement without polling.
