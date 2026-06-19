@@ -17,6 +17,9 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:usage 2026-06-19 14:28 → Promise.allSettled in addPantryItems handles partial batch failure; AppState listener correctly scopes re-checks to emailVerified only
+
+`UserDataContext.addPantryItems` uses `Promise.allSettled` so a 409 duplicate on one item doesn't abort the whole batch — 409s are filtered as expected, other errors are surfaced via throw. The `AppState.addEventListener` in the second `useEffect` is correctly scoped to only re-check `emailVerified` (not full refresh), minimising unnecessary load on foreground. The `isPrefsStale` flag (30-day threshold) provides a UI signal to prompt re-engagement without polling.
 ## ASSET:usage 2026-06-15 09:12 → Structured [category:action] logging and dual CSV metric files provide solid observability
 
 All route handlers emit structured console logs in `[category:action]` format: `[recipe:generate]`, `[recipe:result]`, `[recipe:saved]`, `[recipe:share]`, `[recipes:discover]`, `[users:me]`, `[flow:response]`, `[og-image]`, `[youtube]`. This pattern makes grep-based log analysis reliable. Two CSV files — `logs/recipe-metrics.csv` and `logs/discover-metrics.csv` — capture per-request analytics including `pantryPct`, `groceryPct`, `responseMs`, `provider`, `style`, `promptVersion`, and `continent`. The `!metrics` bot command in `src/routes/chat.ts` surfaces today's counts instantly. The `!status` command exposes PM2 process memory and uptime, and `!logs` tails recent error output — giving the solo operator a full ops dashboard via Google Chat.
