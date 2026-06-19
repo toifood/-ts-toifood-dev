@@ -17,6 +17,27 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:backend 2026-06-20 11:39 -> Usage tracking inventory update — AUTH-METRIC now in GitHub, storeReport path status noted
+
+**Full metric inventory (updated):**
+
+| File / Store | Written by | Location | Format | Gap |
+|---|---|---|---|---|
+| `would/RECIPE-METRIC.csv` | `appendMetric()` in `routes/recipes.ts` | Mac Mini disk | CSV, 19 fields | Local only; no offsite copy |
+| `would/DISCOVER-METRIC.csv` | `appendDiscoverMetric()` in `routes/recipes.ts` | Mac Mini disk | CSV, 6 fields | Local only |
+| `would/DIGEST-METRIC.csv` | `src/digest.ts` | Mac Mini disk | CSV, 9 fields | Local only |
+| `would/AUTH-METRIC.csv` | `appendAuthMetric()` in `routes/auth.ts` | Mac Mini disk + GitHub `ts-toifood-dev` | CSV, 7 fields | IPs stored in git; privacy concern |
+| Store KPI (iOS/Android) | `src/storeReport.ts` | Intended: `-ARCHIVE/-WOULD/`; actual: nowhere | Markdown entry | Path broken — no output since introduction |
+| `CookRecord` table | `POST /1-1-1/api/records` | PostgreSQL | DB rows | No digest/report aggregation |
+| `UserInsight` table | `runInsightAnalysis()` | PostgreSQL | DB rows | No weekly report |
+| Rate-limit 429 events | `recipeGenerateRateLimit()` | Nowhere | — | Entirely untracked |
+
+**AUTH-METRIC.csv field reference:**
+`timestamp, event (register|login), method (password|google|apple), userId, success (bool), failReason, ip`
+Pushed to GitHub after each external auth event via `TOIFOOD_CROSS_REPO_TOKEN`. Currently 1 file per event, appended in place (GET sha → append → PUT). Race condition on simultaneous auth events mitigated by 1-retry 409 loop.
+
+**Daily digest (`src/digest.ts`):**
+Reads today's rows from RECIPE-METRIC and DISCOVER-METRIC. Posts two Google Chat cards. Also appends to DIGEST-METRIC.csv. Reads infra health from `/Users/jayagent/.openclaw/logs/infra_health.log` (cross-account read).
 ## ASSET:usage 2026-06-19 16:46 → Metrics schema and instrumentation reference
 
 **recipe-metrics.csv columns:**
