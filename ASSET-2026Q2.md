@@ -10,6 +10,10 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 ## ASSET:{NAME OF ENVIRONMENT} {YYYY-MM-DD HH:MM} → {CONTENT}
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:toifood 2026-06-19 → WOULD-UPDATE-MD-LOG.log live — every run outcome now logged to jayreck996/ts-repo
+
+Proposal implemented and tested. Two bugs found and fixed during test: (1) GITHUB_TOKEN lacked contents:write — fixed by adding permissions: contents: write to would-update-md.yml. (2) Cloudflare tunnel-down HTTP code is 530 not 1033 — fixed note matching in Log run outcome step. First real log entry confirmed: 2026-06-19 01:40 UTC | ts-toifood | failure | 530 | Cloudflare error 530. pm2 logs toigroup-listener no longer needed to diagnose trigger-layer failures.
+
 ## ASSET:toifood 2026-06-19 → WOULD-UPDATE-MD-LOG proposal — eliminates pm2 logs dependency for run diagnosis
 
 Currently the only way to know if a would-update-md run actually wrote entries is to check pm2 logs toigroup-listener on the Mac Mini — requires machine to be on and accessible. Proposal in jayreck996/ts-repo/would/WOULD-UPDATE-MD-LOG.log moves run outcome visibility into GitHub: every trigger attempt (success or fail) appends a log line to would/WOULD-UPDATE-MD-LOG.log via GITHUB_TOKEN on ubuntu-latest. Post-implementation, pm2 logs is no longer needed to diagnose the trigger layer. Implementation itself is also fully remote — no local machine required.
