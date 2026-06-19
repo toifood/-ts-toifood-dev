@@ -17,6 +17,9 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:price 2026-06-19 14:28 → Claude daily limit is enforced client-side in SecureStore only — bypassable by reinstall; no IAP SDK present
+
+Two billing gaps: (1) `src/utils/claudeLimit.ts` enforces `CLAUDE_DAILY_LIMIT = 3` by reading/writing to `expo-secure-store` key `'claude_daily_limit'`. Clearing app data, reinstalling, or running on an emulator with a fresh keychain gives any user unlimited Claude generations. The backend's server-side rate limiter (`getRecipeUsage`) is the real guard, but the client-side counter creates a false sense that the limit is enforced at the app layer. (2) `package.json` has no IAP SDK (`expo-in-app-purchases`, `react-native-purchases`, or `react-native-iap`). `app/partials/PremiumModal.tsx` exists in the file tree, implying a premium upsell flow, but there is no payment processing capability in the current mobile codebase. Premium upgrades cannot be completed inside the app.
 ## ISSUE:price 2026-06-15 09:12 → Claude premium tier is bypassable — any free user can request Claude by sending provider:"claude" in the request body
 
 `src/routes/recipes.ts` line 235 computes `isPremium = user?.role !== "free"` but never uses this value before line 253: `if (provider === "claude" && process.env.ANTHROPIC_API_KEY)`. The only gate is whether the env var is set and whether the client sends `"provider": "claude"` in the JSON body. A free-tier user who calls `POST /recipes/generate` with `{"provider": "claude", ...}` directly against the API gets a full Claude Haiku generation, incurring Anthropic API cost, with no role check. The `isPremium` variable is assigned but dead — it is never referenced in a conditional guard on the Claude branch. This is an API-level billing bypass, not just a UI issue.
