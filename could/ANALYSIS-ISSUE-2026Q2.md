@@ -17,6 +17,18 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:analysis 2026-06-21 19:41 → pushRowToGitHub couples auth to GitHub file writes creating race conditions under concurrent logins
+
+Three tight-coupling and scalability concerns in src/routes/auth.ts and related files:
+
+**1. auth.ts — pushRowToGitHub couples auth events to GitHub file I/O**
+Every password login, Google callback, and Apple login fires a fire-and-forget async function that GETs the entire AUTH-METRIC.csv from GitHub, appends one line, then PUTs it back. The 409-conflict retry (attempt 0 → 1) is insufficient under burst concurrent logins (five failed attempts from 101.98.186.37 on 2026-06-19 05:49 landed within 32 seconds — all five fired concurrent pushes). Lost updates are likely. The correct fix is an append-only write via a queue or a dedicated metrics sink rather than read-modify-write on a shared file.
+
+**2. storeMetrics.ts — in-memory module-level cache won't survive multi-instance deployments**
+let cache at module scope is process-local. Each replica warms its own cache independently on deploy, causing N parallel Apple/Play API calls per hour. Move the cache to Redis or a shared DB row.
+
+**3. routes/users.ts DELETE — manually ordered FK deletes are brittle**
+DELETE /users/me hard-codes deletion order (dietaryPreference → passwordResetToken → emailVerificationToken → recipe → user). Every new FK relation added to User requires updating this list. The Prisma schema already uses onDelete: Cascade for most child relations — use a single prisma.user.delete() instead and rely on cascade rules.
 ## ISSUE:backend 2026-06-20 11:39 -> Two new architectural concerns — storeReport writes to non-existent path, and auth events push user IPs to GitHub
 
 **1. `storeReport.ts` writes to `-ARCHIVE/-WOULD/` — path does not exist**
