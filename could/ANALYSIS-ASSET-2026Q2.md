@@ -17,6 +17,18 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:analysis 2026-06-21 19:41 → Redis Lua atomics, Apple JWKS caching, and no-enumeration auth patterns are well-engineered
+
+Three production-ready patterns found in the authentication and rate-limiting layer:
+
+**1. rateLimit.ts — Lua script prevents expiry-race on first increment**
+The INCR+EXPIRE Lua atom in src/middleware/rateLimit.ts correctly closes the window where two concurrent requests both see count===1 and the key never receives an expiry. The comment explains the invariant. This is the correct approach for Redis-backed rate limiting.
+
+**2. auth.ts — Apple JWKS cached with 1hr TTL**
+getCachedAppleKeys() caches Apple public keys in module memory with a proper expiry check, avoiding a live HTTPS fetch on every Apple auth call. Keys rotate infrequently so 1hr is safe and matches Apple's documented guidance.
+
+**3. auth.ts — no-enumeration on password reset and resend-verification**
+Both POST /auth/forgot-password and POST /auth/resend-verification always return 200 regardless of whether the email exists. This correctly prevents account enumeration attacks, and the pattern is consistent across both flows.
 ## ASSET:backend 2026-06-20 11:39 -> Codebase health snapshot update — new feature surface, GitHub auth-metric push, storeReport path bug confirmed
 
 **Changes since 2026-06-13 entry:**
