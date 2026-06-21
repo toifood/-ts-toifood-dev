@@ -17,6 +17,15 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:price 2026-06-21 19:41 → AppStore JWT uses short-lived 20m tokens and admin gate protects store metrics endpoint
+
+Two correct pricing/billing implementation details:
+
+**1. appstore.ts — JWT uses 20m expiry as required by Apple**
+makeToken() in src/services/appstore.ts signs with expiresIn: "20m". Apple's App Store Connect API requires tokens expire within 20 minutes; longer-lived tokens are rejected. The implementation is correct and the token is freshly generated per metrics call inside getAppStoreMetrics().
+
+**2. storeMetrics.ts — admin guard prevents non-admin billing data exposure**
+The GET / handler applies both requireAuth and requireAdmin middleware. Store metrics (crash rates, install counts, active device counts) are only accessible to admin-role users, correctly preventing regular or premium users from reading operational and commercial data.
 ## ASSET:backend 2026-06-20 11:39 -> Pricing infrastructure snapshot — unchanged limits, no billing integration, Redis dump in repo confirmed
 
 **Rate limit table (current, unchanged since June 13th):**
