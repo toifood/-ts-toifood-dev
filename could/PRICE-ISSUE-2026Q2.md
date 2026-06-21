@@ -17,6 +17,15 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:price 2026-06-21 19:41 → no subscription webhook receiver means premium role can never be revoked automatically on lapse or refund
+
+Two billing edge cases with no current handling:
+
+**1. Missing subscription lifecycle webhook endpoint**
+Searching all route files (auth, recipes, users, insights, cookRecords, storeMetrics, lists, pantry, flows, admin), there is no endpoint that receives App Store Server Notifications or Google Play Real-time Developer Notifications. The role field on User (schema.prisma: role UserRole @default(free)) is the sole gating mechanism for isPremium. Without a webhook receiver, subscription cancellations never downgrade role to free, refunds never revoke access, and billing retry states are invisible to the backend. Premium access is permanent once granted until manually revoked.
+
+**2. PlayStore installs30d and activeDevices30d hardcoded null**
+src/services/playstore.ts comment: "installs + active devices require BigQuery export from Play Console — not available via API alone". Both fields are set to null unconditionally. The admin metrics endpoint GET /store-metrics returns these as null permanently, making the Android install funnel invisible. This should either be sourced from a scheduled BigQuery job or removed from the response contract to avoid confusion.
 ## ISSUE:backend 2026-06-20 11:39 -> No payment provider still — plus rate-limit hit rate remains unmeasured and Redis persistence gap confirmed
 
 **Status since June 13th:**
