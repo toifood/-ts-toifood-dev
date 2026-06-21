@@ -17,6 +17,15 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:usage 2026-06-21 19:41 → Redis client uses enableOfflineQueue:false and structured log lines provide parseable context
+
+Two observability and resource-management strengths:
+
+**1. rateLimit.ts — enableOfflineQueue: false prevents Redis memory leak**
+The ioredis client is initialised with enableOfflineQueue: false in src/middleware/rateLimit.ts. When Redis is unavailable, commands fail immediately instead of queuing in memory. The error handler logs the condition and next() is called so the request proceeds. This combination prevents both memory exhaustion and hard user-facing blocks during Redis outages.
+
+**2. Structured bracket-prefixed log lines enable log filtering and parsing**
+Consistent format [subsystem:action] key=value appears across auth ([auth-metrics]), rate limiting ([rateLimit]), cook records ([cook:start] recordId= user= recipe= pantry=), and OG image generation ([og-image]). These lines can be grepped or parsed by structured log systems without regex fragility.
 ## ASSET:backend 2026-06-20 11:39 -> Usage tracking inventory update — AUTH-METRIC now in GitHub, storeReport path status noted
 
 **Full metric inventory (updated):**
