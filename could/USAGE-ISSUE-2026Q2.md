@@ -17,6 +17,13 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:usage 2026-06-29 12:37 → appendMetric uses synchronous fs.appendFileSync on every recipe generation; vitest test infrastructure configured but 0 spec files exist
+
+**Finding — `src/routes/recipes.ts` `appendMetric` and `appendDiscoverMetric`**
+Both functions call `fs.appendFileSync` synchronously inside async Express route handlers. `appendFileSync` blocks the Node.js event loop for the duration of the write. On the local Mac mini SSD this is typically <1ms, but under concurrent recipe generation (multiple users hitting `POST /generate` simultaneously) these blocking writes queue behind each other on the event loop and add latency to every in-flight request. The fix is `await fs.promises.appendFile(...)`. This affects both `appendMetric` (called in `POST /generate`) and `appendDiscoverMetric` (called in `GET /discover`).
+
+**Finding — `src/__tests__/`**
+`vitest.config.ts` exists, `vitest` and `supertest` are in devDependencies, and two helper modules (`src/__tests__/helpers/auth.ts`, `src/__tests__/helpers/db.ts`) are scaffolded. No `*.test.ts` or `*.spec.ts` files exist anywhere in the project. Running `npm test` exits with 0 test files found. The `pluralStem` stem-matching function, the pantry match logic in `cookRecords.ts`, and the Redis Lua rate-limit script are all untested business logic paths running in production. Any CI pipeline treating a zero-test suite as green will not catch regressions.
 ## ISSUE:usage 2026-06-29 12:28 → No analytics or event tracking on the web frontend; shared recipe page engagement is entirely unobservable
 
 **Finding — `frontend/src/` (all files)**
