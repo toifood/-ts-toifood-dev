@@ -17,6 +17,16 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:usage 2026-06-30 06:41 → Redis offline-queue disabled for fast-fail; chatAlert fire-and-forget; Ollama AbortController caps insight latency
+
+**Finding — `src/middleware/rateLimit.ts` + `src/services/ai/insights.ts` `enableOfflineQueue: false`**
+Both Redis clients set `enableOfflineQueue: false`. When Redis is unavailable, operations fail immediately rather than queuing indefinitely in memory. This prevents request pile-up and unbounded memory growth during Redis outages. Both call sites handle the resulting error gracefully — the rate limiter allows the request through (fail open) and insights skips the analysis — so user-facing responses are never blocked.
+
+**Finding — `src/lib/chat.ts` fire-and-forget alert pattern**
+`chatAlert` swallows delivery errors silently (`.catch(() => {})`), ensuring that a Google Chat webhook failure never throws into a request handler. Alerts are instrumentation, not business logic, and this pattern correctly reflects that priority.
+
+**Finding — `src/services/ai/insights.ts` `ollamaSuggest` 8s AbortController**
+The Ollama call in insight generation wraps the fetch in an `AbortController` with an 8-second timeout. A timeout returns a pre-written fallback string so that a slow or overloaded Ollama instance cannot hold up the post-save insight pipeline indefinitely.
 ## ASSET:usage 2026-06-29 12:37 → DIGEST-METRIC.csv per-model time-series, unhandledRejection/uncaughtException handlers, and structured cook record funnel logging
 
 **Finding — `src/digest.ts` `appendDigestLog`**
