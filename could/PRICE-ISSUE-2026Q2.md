@@ -17,6 +17,16 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:price 2026-06-30 06:41 → no subscription webhook; role never downgrades on cancellation; Redis failure silently shows premium users free-tier caps
+
+**Finding — missing subscription webhook**
+There is no route handling App Store Server Notifications (SSNS) or Google Play Real-time Developer Notifications (RTDNs). This means subscription cancellations, refunds, grace-period entries, and renewals never trigger a `role` update. A user who cancels their subscription retains `role: premium` indefinitely. `src/services/appstore.ts` only fetches analytics metrics (installs/sessions/crashes) — it does not validate subscription state or process lifecycle events.
+
+**Finding — premium role set without receipt validation**
+Premium role is granted or revoked exclusively via the admin route with no in-app-purchase receipt verification. There is no StoreKit receipt-check or Play Billing purchase-token validation anywhere in the codebase. Granting premium requires a manual admin action rather than being driven by a verified purchase event, which is a scaling and support risk.
+
+**Finding — `src/middleware/rateLimit.ts` `getRecipeUsage` on Redis failure**
+When Redis is unavailable, `getRecipeUsage` catches the error and returns `{ max: LIMITS.free.ollama, ... }`, silently applying free-tier caps to all users. A premium subscriber experiencing a Redis blip would see `max: 3` recipes in the UI — indistinguishable from a billing state change. A safer fallback would either fall through to a DB role check or return a `null` max to signal "unavailable" rather than "downgraded".
 ## ISSUE:price 2026-06-29 12:37 → Recipe list silently truncates at 500; isPremium derived from open-ended role check that auto-elevates any future role; storeReport writes wrong category prefix
 
 **Finding — `src/routes/recipes.ts` GET /recipes**
