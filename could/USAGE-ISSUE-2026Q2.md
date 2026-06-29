@@ -17,6 +17,10 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:usage 2026-06-29 12:28 → No analytics or event tracking on the web frontend; shared recipe page engagement is entirely unobservable
+
+**Finding — `frontend/src/` (all files)**
+No analytics SDK, event tracking, or Web Vitals reporting exists anywhere in the frontend codebase. The shared recipe page (`/recipe/:token`) is the primary cold-traffic acquisition surface for app shares, but CTA click-through rates, scroll depth, and bounce rate are untracked. App Store and Google Play links in `Home.jsx` and `SharedRecipe.jsx` use hardcoded URLs with no UTM parameters, preventing campaign attribution.
 ## ISSUE:usage 2026-06-21 19:41 → AUTH-METRIC.csv grows unboundedly and 5-query insight fan-out will degrade with user growth
 
 Three performance and resource concerns grounded in the current data and code:
