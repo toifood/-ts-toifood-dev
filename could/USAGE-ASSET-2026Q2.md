@@ -17,6 +17,13 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:usage 2026-06-29 12:28 → useReveal IntersectionObserver and Cloudflare edge caching provide passive usage signal infrastructure
+
+**Finding — `frontend/src/hooks/useReveal.js`**
+The `useReveal` hook fires once per element via `IntersectionObserver` then disconnects — the right primitive for adding `gtag` section-view events with minimal changes. It is already wired to all major sections in Home, SharedRecipe, and FAQ.
+
+**Finding — Cloudflare edge caching**
+The Pages function caches at `max-age=300` and the OG worker at `max-age=86400`. Cloudflare Analytics or Logpush (if enabled on the zone) would provide request-level visibility into shared recipe traffic and OG render counts without any frontend code changes.
 ## ASSET:usage 2026-06-21 19:41 → Redis client uses enableOfflineQueue:false and structured log lines provide parseable context
 
 Two observability and resource-management strengths:
