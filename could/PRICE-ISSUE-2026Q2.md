@@ -17,6 +17,10 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:price 2026-06-29 12:28 → Marketing landing page has no pricing section or upgrade CTA despite FAQ documenting two tiers
+
+**Finding — `frontend/src/pages/Home.jsx`**
+The Home page five-card features section mentions AI recipes, pantry matching, saving, YouTube videos, and dietary preferences — but not pricing tiers, subscription cost, or the Basic vs Premium distinction. The FAQ (ids: `premium`, `generation-limit`) documents the full free vs premium model. The Navbar shows only "FAQ" and "Download" — there is no "Pricing" or "Plans" page or link anywhere in the site.
 ## ISSUE:price 2026-06-21 19:41 → no subscription webhook receiver means premium role can never be revoked automatically on lapse or refund
 
 Two billing edge cases with no current handling:
