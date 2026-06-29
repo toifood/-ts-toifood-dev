@@ -17,6 +17,19 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ISSUE ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ISSUE ENTRIES-->
+## ISSUE:analysis 2026-06-30 06:41 → pluralStem duplicated with diverging logic; legacy dual-mount doubles route surface; digest hardcodes machine path
+
+**Finding — `src/routes/recipes.ts` (line 257) + `src/routes/cookRecords.ts` (line 7)**
+`pluralStem` is implemented twice with different rule sets. The `recipes.ts` version applies three simple regex rules (oes/ies/s). The `cookRecords.ts` version adds a 14-entry irregular dictionary (leaves→leaf, knives→knife, geese→goose, mice→mouse…) plus a guard against stripping double-s endings (`/ee$/`). The two will disagree on inputs like "leaves", "geese", or "cheese". The authoritative version lives in `cookRecords.ts`; the weaker copy in `recipes.ts` should be replaced by a shared utility.
+
+**Finding — `src/index.ts`**
+Every route is mounted twice: once on the versioned `/1-1-1/...` prefix and again on bare legacy paths (`/recipes`, `/auth`, `/users`, etc.). There is no toggle, no deprecation log, and no deadline. This doubles Express middleware processing for every legacy-path request and means any future auth or rate-limit change must be applied in both mount blocks or it silently regresses for old clients.
+
+**Finding — `src/digest.ts` (`readInfraHealth`)**
+`readInfraHealth()` reads directly from `/Users/jayagent/.openclaw/logs/infra_health.log` — a hardcoded absolute path on the Mac mini jayagent account. Any machine change, home-directory rename, or running the digest as a different OS user silently returns "infra_health.log not found" with no alerting. This path should move to an env var (`INFRA_HEALTH_LOG_PATH`).
+
+**Finding — test scaffold**
+`src/__tests__/helpers/auth.ts` and `src/__tests__/helpers/db.ts` exist but the tree contains zero spec files. `vitest.config.ts` is configured but `npm test` runs nothing. The helpers are dead weight until specs are added.
 ## ISSUE:analysis 2026-06-29 12:37 → pluralStem duplicated with diverging logic; dual legacy route mounting; digest hardcodes machine-local path; test scaffold has 0 specs
 
 **Finding — `src/routes/recipes.ts` + `src/routes/cookRecords.ts`**
