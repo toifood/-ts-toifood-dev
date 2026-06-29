@@ -17,6 +17,13 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:price 2026-06-29 12:28 → SharedRecipe.jsx surfaces Premium/Basic tier label and premium author badge as passive upgrade signals
+
+**Finding — `frontend/src/pages/SharedRecipe.jsx` lines 421–427**
+The recipe meta grid displays `recipe.provider === "claude" ? "Premium" : "Basic"` alongside a sparkles icon. This communicates the two-tier model to cold visitors arriving via shared links without a dedicated pricing page.
+
+**Finding — author card (lines 678–684)**
+Premium accounts display a lime sparkle badge on the author avatar, gated on `isPremium` derived from `fullProfile?.role ?? author?.role !== "free"`. Both signals reinforce status differentiation and serve as passive marketing for the paid tier.
 ## ASSET:price 2026-06-21 19:41 → AppStore JWT uses short-lived 20m tokens and admin gate protects store metrics endpoint
 
 Two correct pricing/billing implementation details:
