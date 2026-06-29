@@ -17,6 +17,16 @@ PATHS:
 would/
 
 ####### <!-- ANCHOR MARKER - ADD ALL NEW ASSET ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ASSET ENTRIES-->
+## ASSET:usage 2026-06-29 12:37 → DIGEST-METRIC.csv per-model time-series, unhandledRejection/uncaughtException handlers, and structured cook record funnel logging
+
+**Finding — `src/digest.ts` `appendDigestLog`**
+Every nightly digest run appends a structured row to `would/DIGEST-METRIC.csv` capturing recipeCount, discoverCount, ollamaRecipes, claudeRecipes, avgResponseMs, wiredMb, usableMb, and ollamaStatus. This creates a queryable time-series of daily generation volume and infrastructure state without an external metrics store. `buildRecipeStats()` also computes per-provider fallback counts, making it possible to detect Claude→Ollama fallback spikes from the nightly Google Chat message without log parsing.
+
+**Finding — `src/index.ts` process error handlers**
+`process.on("unhandledRejection")` and `process.on("uncaughtException")` both log to `console.error` with a `[process]` prefix. These handlers prevent PM2 from silently restarting the process with no error context — every unhandled async failure produces a searchable log line captured by the `pm2 logs` pull in `digest.ts` and surfaced in the daily ops digest.
+
+**Finding — `src/routes/cookRecords.ts` structured log lines**
+`[cook:start] recordId= user= recipe= pantry=X/Y`, `[cook:complete]`, and `[cook:abandon]` log lines use structured key=value pairs matching the bracket-prefixed format used throughout the codebase (`[auth-metrics]`, `[rateLimit]`, `[og-image]`). Start→complete→abandon ratios per user or recipe are recoverable from PM2 logs via grep without a dedicated analytics store, providing a basic cook session funnel.
 ## ASSET:usage 2026-06-29 12:28 → useReveal IntersectionObserver and Cloudflare edge caching provide passive usage signal infrastructure
 
 **Finding — `frontend/src/hooks/useReveal.js`**
