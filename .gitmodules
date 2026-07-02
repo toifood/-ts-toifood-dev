@@ -1,7 +1,8 @@
 [submodule "back"]
 	path = back
 	url = https://github.com/toifood/-ts-toifood-back.git
-
+	branch = main
 [submodule "web"]
 	path = web
 	url = https://github.com/toifood/-ts-toifood-web.git
+	branch = main
